@@ -786,6 +786,37 @@ CLI 里很多高频操作，不一定要回到 shell 里敲完整命令。官方
 如果你经常重复说“先跑测试再改”“不要动生成文件”“改完给我验证步骤”，就该考虑用 \texttt{/init} 和 \texttt{AGENTS.md} 固化这些规则了。
 \end{tipbox}
 
+\subsection{\texttt{/compact} 和 \texttt{/mention}：上下文太长时特别有用}
+
+\texttt{/compact} 适合会话已经很长、背景很多，但你还想继续沿着同一个目标聊下去的时候。它的核心作用是把长对话压缩成更短的可继续上下文。\\
+\texttt{/mention} 则适合你想强制把某个文件、目录或路径拉进当前上下文，不希望 Codex 只做泛泛回答的时候。
+
+\begin{tipbox}
+如果你已经开始反复贴长日志、长代码、长历史结论，就该优先考虑 \texttt{/compact}；如果它总是没有抓到你要看的文件，就用 \texttt{/mention} 点名。
+\end{tipbox}
+
+\subsection{\texttt{/model}：什么时候值得切模型}
+
+\texttt{/model} 适合两种情况：
+\begin{itemize}
+  \item 你想先用更快的模型做浏览、定位、整理；
+  \item 你准备进入更复杂的分析、修改或审查，想换到更强的模型。
+\end{itemize}
+
+\subsection{怎么新开一个会话？}
+
+这个点确实容易被忽略。\textbf{新开会话本身不是斜杠命令。}最直接的做法是退出当前交互，再重新运行：
+
+\begin{lstlisting}[style=cli]
+codex
+\end{lstlisting}
+
+如果你不是想“全新开始”，而是想基于旧上下文继续分叉或恢复，那再考虑：
+\begin{itemize}
+  \item \texttt{codex resume --last}：继续最近一次会话；
+  \item \texttt{codex fork --last}：从最近一次会话分出一条新分支。
+\end{itemize}
+
 \begin{sumbox}
 斜杠命令的核心价值，是让你在同一场会话里完成“看状态、改权限、切模型、看 diff、做 review”这些高频动作，而不用来回跳出会话。
 \end{sumbox}
@@ -1957,7 +1988,19 @@ TypeError: Cannot read properties of undefined (reading 'map')
 
 当你发现当前会话已经同时混进了多个目标，比如“看项目结构、修 bug、改文案、做 CI”，这时就该拆。一个会话尽量只服务一个主目标，后续会更稳，也更容易复盘。
 
-\subsection{Q4：它改完代码后，我最少要做什么检查？}
+\subsection{Q4：文档里是不是还有命令没讲？}
+
+有，但大多是\textbf{刻意没有展开}。这份教程优先覆盖的是入门最常用的一层，所以像下面这些命令虽然存在，但没有作为主线重点：
+\begin{itemize}
+  \item \texttt{codex logout}：登出认证；
+  \item \texttt{codex completion}：生成 shell 补全；
+  \item \texttt{codex mcp} / \texttt{mcp-server}：更偏扩展和集成；
+  \item \texttt{codex sandbox} / \texttt{debug}：更偏调试或高级使用。
+\end{itemize}
+
+如果你的目标是“先把 Codex CLI 用起来”，这些命令可以先知道有这么回事，但不一定要在第一轮教程里深讲。
+
+\subsection{Q5：它改完代码后，我最少要做什么检查？}
 
 最少做三件事：
 \begin{enumerate}

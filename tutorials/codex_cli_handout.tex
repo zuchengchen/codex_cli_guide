@@ -341,6 +341,26 @@ codex --full-auto
 如果你在三次任务里都重复说过同一句话，那它大概率就该进 \texttt{AGENTS.md} 了。
 \end{tipbox}
 
+\section{会话控制}
+
+\subsection{上下文太长怎么办？}
+
+优先做四件事：
+\begin{enumerate}
+  \item 用 \texttt{/compact} 压缩长会话；
+  \item 用 \texttt{/mention} 点名关键文件；
+  \item 把任务缩到一个功能或一个报错；
+  \item 真聊散了，就退出后重新运行 \texttt{codex} 开新会话。
+\end{enumerate}
+
+\subsection{继续旧会话和新开会话怎么选？}
+
+\begin{itemize}
+  \item 想完全重新开始：退出后重新运行 \texttt{codex}。
+  \item 想接着最近一次聊：\texttt{codex resume --last}
+  \item 想基于旧会话分一条新线：\texttt{codex fork --last}
+\end{itemize}
+
 \section{自动化与 CI}
 
 \subsection{最小示例}
