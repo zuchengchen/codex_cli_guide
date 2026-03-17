@@ -1,0 +1,4 @@
+tutorials/*.aux
+tutorials/*.log
+tutorials/*.out
+tutorials/*.toc

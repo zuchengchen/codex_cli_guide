@@ -1,0 +1,58 @@
+# AGENTS.md
+
+## Project Overview
+
+- This repository is a web application with a frontend, backend, and shared utilities.
+- The main goal is to keep changes small, easy to review, and safe to verify.
+- Prefer reading existing code and tests before making large edits.
+
+## Repository Map
+
+- `frontend/`: UI code and pages
+- `backend/`: API handlers and business logic
+- `shared/`: code used by both frontend and backend
+- `scripts/`: local maintenance scripts
+- `tests/`: automated tests
+- `docs/`: project documentation
+
+## Working Rules
+
+- Always inspect the current directory and relevant files before editing.
+- Prefer small, targeted changes over broad refactors.
+- Do not modify generated files unless the task explicitly requires it.
+- Do not rename files or move modules unless necessary for the task.
+- If a risky or destructive change is required, explain why before doing it.
+
+## Commands
+
+- Install dependencies: `npm install`
+- Start development server: `npm run dev`
+- Run unit tests: `npm test`
+- Run lint: `npm run lint`
+- Build project: `npm run build`
+
+## Code Change Policy
+
+- Preserve existing code style and project conventions.
+- Avoid changing unrelated files.
+- Add comments only when the code would otherwise be hard to understand.
+- When fixing a bug, prefer the smallest correct change first.
+
+## Validation
+
+- After code changes, run the smallest relevant validation step first.
+- If the task affects app behavior, run related tests when available.
+- If you cannot run a needed check, say so clearly in the final summary.
+
+## Output Expectations
+
+- Summarize what changed in plain language.
+- List modified files when the task is non-trivial.
+- Mention validation performed.
+- Mention remaining risks or follow-up checks if any.
+
+## Safe Defaults
+
+- For vague requests, ask clarifying questions or propose a short plan first.
+- For large tasks, break work into smaller steps.
+- Prefer explanation before modification when the user is still exploring the codebase.

@@ -1,0 +1,20 @@
+name: codex-check
+
+on:
+  pull_request:
+
+jobs:
+  codex-review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Codex CLI
+        run: npm i -g @openai/codex
+
+      - name: Run Codex Exec
+        env:
+          CODEX_API_KEY: ${{ secrets.CODEX_API_KEY }}
+        run: |
+          codex exec --json -o codex-summary.txt \
+            "Review the diff against the base branch and summarize risks"

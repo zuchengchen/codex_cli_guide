@@ -1,0 +1,423 @@
+\documentclass[UTF8,a4paper,11pt]{ctexart}
+
+\usepackage[a4paper,margin=2cm]{geometry}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage[table]{xcolor}
+\usepackage{longtable}
+\usepackage{tabularx}
+\usepackage{tikz}
+\usepackage[most]{tcolorbox}
+\usepackage{titlesec}
+\usetikzlibrary{arrows.meta,positioning,shapes.geometric}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=Summary,
+  urlcolor=blue!60!black
+}
+
+\definecolor{Accent}{HTML}{1F5C4A}
+\definecolor{AccentLight}{HTML}{E7F1EE}
+\definecolor{Summary}{HTML}{355C8C}
+\definecolor{SummaryLight}{HTML}{EAF0F8}
+\definecolor{Warn}{HTML}{A34D32}
+\definecolor{WarnLight}{HTML}{FCEEE9}
+\definecolor{CodeBg}{HTML}{F6F8F9}
+\definecolor{GrayLine}{HTML}{D8DEE1}
+\definecolor{CoverSand}{HTML}{F4E8D8}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{Codex CLI 讲义版摘要}
+\fancyhead[R]{速读版}
+\fancyfoot[C]{\thepage}
+\setlength{\headheight}{15pt}
+
+\titleformat{\section}{\Large\bfseries\color{Accent}}{\thesection}{0.6em}{}
+\titleformat{\subsection}{\large\bfseries\color{Accent}}{\thesubsection}{0.6em}{}
+\setlist[itemize]{leftmargin=1.6em,noitemsep,topsep=0.25em}
+\setlist[enumerate]{leftmargin=1.6em,noitemsep,topsep=0.25em}
+\setlength{\parindent}{2em}
+\setlength{\parskip}{0.12em}
+
+\lstdefinestyle{cli}{
+  backgroundcolor=\color{CodeBg},
+  basicstyle=\ttfamily\small,
+  frame=single,
+  rulecolor=\color{GrayLine},
+  columns=fullflexible,
+  breaklines=true,
+  breakautoindent=false,
+  breakindent=0pt,
+  showstringspaces=false
+}
+
+\lstdefinestyle{prompt}{
+  style=cli,
+  linewidth=0.9\linewidth,
+  xleftmargin=0.05\linewidth
+}
+
+\newtcolorbox{tipbox}{
+  colback=SummaryLight,
+  colframe=Summary,
+  boxrule=0.7pt,
+  arc=2mm,
+  title=记住这一点,
+  fonttitle=\bfseries
+}
+
+\newtcolorbox{warnbox}{
+  colback=WarnLight,
+  colframe=Warn,
+  boxrule=0.7pt,
+  arc=2mm,
+  title=别踩这个坑,
+  fonttitle=\bfseries
+}
+
+\newtcolorbox{sumbox}{
+  colback=AccentLight,
+  colframe=Accent,
+  boxrule=0.7pt,
+  arc=2mm,
+  title=速记,
+  fonttitle=\bfseries
+}
+
+\begin{document}
+
+\thispagestyle{empty}
+\begin{tikzpicture}[remember picture,overlay]
+  \fill[Accent!10] ([xshift=-1.3cm,yshift=1.0cm]current page.north east) circle (3.1cm);
+  \fill[Summary!10] ([xshift=0.7cm,yshift=-0.5cm]current page.north west) circle (2.0cm);
+  \fill[CoverSand] ([xshift=-1.0cm,yshift=-0.8cm]current page.south east) circle (2.5cm);
+\end{tikzpicture}
+
+\vspace*{0.6cm}
+
+\begin{tcolorbox}[
+  enhanced,
+  colback=white,
+  colframe=Accent,
+  boxrule=1pt,
+  arc=3mm,
+  left=7mm,
+  right=7mm,
+  top=7mm,
+  bottom=7mm
+]
+{\Large\bfseries\color{Accent}Codex CLI 讲义版摘要}\\[0.35em]
+{\large\color{black!72}适合培训、复习、分享的速读版}\\[0.7em]
+\small
+\tcbox[colback=AccentLight,colframe=Accent,arc=2mm,boxrule=0.7pt,left=2mm,right=2mm,top=0.8mm,bottom=0.8mm]{第一次上手}
+\hspace{0.5em}
+\tcbox[colback=SummaryLight,colframe=Summary,arc=2mm,boxrule=0.7pt,left=2mm,right=2mm,top=0.8mm,bottom=0.8mm]{权限与审批}
+\hspace{0.5em}
+\tcbox[colback=WarnLight,colframe=Warn,arc=2mm,boxrule=0.7pt,left=2mm,right=2mm,top=0.8mm,bottom=0.8mm]{提示词速记}
+
+\vspace{0.7em}
+
+这份短版保留了最核心的起步路径：安装、提问、权限判断、常用命令、稳定工作流、排错顺序和最后的速记卡。
+\end{tcolorbox}
+
+\begin{tcolorbox}[
+  colback=CodeBg,
+  colframe=GrayLine,
+  boxrule=0.6pt,
+  arc=2mm,
+  left=5mm,
+  right=5mm,
+  top=3mm,
+  bottom=3mm
+]
+\small
+请以你本地 \texttt{codex --help} 和 OpenAI 官方 Codex 文档为准。
+\end{tcolorbox}
+
+\section{一页理解}
+
+先记住一句最实用的话：\textbf{Codex CLI 是一个在终端里工作的 AI 编码代理。}
+
+它最适合做四类事：
+\begin{itemize}
+  \item 看懂陌生项目；
+  \item 定位功能和报错；
+  \item 做小范围改动；
+  \item 做 review、总结、验证建议。
+\end{itemize}
+
+\begin{center}
+\begin{tikzpicture}[
+  box/.style={draw=Accent, rounded corners, fill=AccentLight, minimum width=2.7cm, minimum height=0.95cm, align=center},
+  line/.style={-Latex, thick, draw=Accent},
+  node distance=8mm and 7mm
+]
+\node[box] (a) {进入项目目录};
+\node[box, right=of a] (b) {说清楚任务};
+\node[box, right=of b] (c) {让它读上下文};
+\node[box, below=of b] (d) {看解释或改动};
+\node[box, left=of d] (e) {继续追问};
+\node[box, right=of d] (f) {复核与验证};
+\draw[line] (a) -- (b);
+\draw[line] (b) -- (c);
+\draw[line] (c) -- (d);
+\draw[line] (d) -- (e);
+\draw[line] (d) -- (f);
+\end{tikzpicture}
+\end{center}
+
+\begin{sumbox}
+第一次用 Codex CLI，不求全会。先掌握一条线：进目录、提具体任务、继续追问、最后验证。
+\end{sumbox}
+
+\section{第一次上手}
+
+\subsection{安装与登录}
+
+\begin{lstlisting}[style=cli]
+npm i -g @openai/codex
+codex --help
+codex
+\end{lstlisting}
+
+如果你想显式登录或检查状态：
+
+\begin{lstlisting}[style=cli]
+codex login
+codex login status
+\end{lstlisting}
+
+如果你走 API key 路线：
+
+\begin{lstlisting}[style=cli]
+printenv OPENAI_API_KEY | codex login --with-api-key
+\end{lstlisting}
+
+\subsection{第一次提问}
+
+\begin{lstlisting}[style=prompt]
+请先看一下当前项目结构，告诉我入口文件、核心目录和推荐阅读顺序，并请引用具体文件路径。
+\end{lstlisting}
+
+\begin{warnbox}
+不要一上来就说“帮我改好”或“帮我优化一下”。范围太宽，结果通常会变空。
+\end{warnbox}
+
+\section{最常用命令}
+
+\rowcolors{2}{white}{AccentLight}
+\begin{longtable}{>{\ttfamily\raggedright\arraybackslash}p{0.24\textwidth} >{\raggedright\arraybackslash}p{0.22\textwidth} >{\raggedright\arraybackslash}p{0.40\textwidth}}
+\toprule
+命令 & 作用 & 什么时候用 \\
+\midrule
+\endhead
+codex & 交互式会话 & 本地日常开发最常用 \\
+codex exec "..." & 非交互执行 & 脚本、CI、一次性任务 \\
+codex review --uncommitted & 审查当前改动 & 提交前快速找风险 \\
+codex resume --last & 接着上次会话干 & 不想重复讲背景时 \\
+codex apply <TASK\_ID> & 应用某次任务 diff & 结果要落到工作树时 \\
+/status & 查看会话状态 & 看模型、权限、可写目录 \\
+/permissions & 调整权限模式 & 切换更保守或更自动 \\
+/review & 会话内做 review & 先查风险再看 diff \\
+/diff & 查看改动 & 改完先审一眼 \\
+/plan & 先出计划 & 大任务先计划再动手 \\
+/init & 生成 \texttt{AGENTS.md} 脚手架 & 想沉淀仓库规则时 \\
+\bottomrule
+\end{longtable}
+
+\begin{tipbox}
+如果你只背三个入口，先背 \texttt{codex}、\texttt{codex exec}、\texttt{codex review}。
+\end{tipbox}
+
+\section{权限与审批}
+
+\subsection{三个沙箱级别}
+
+\begin{itemize}
+  \item \texttt{read-only}：只读，不改。
+  \item \texttt{workspace-write}：能改当前工作区，最适合本地开发。
+  \item \texttt{danger-full-access}：权限很大，只在你非常清楚风险时使用。
+\end{itemize}
+
+\subsection{三个审批策略}
+
+\begin{itemize}
+  \item \texttt{untrusted}：安全读操作自动跑，不信任命令先问你。
+  \item \texttt{on-request}：由代理判断什么时候该申请批准。
+  \item \texttt{never}：不弹审批，常用于自动化，但前提是你自己已经控好风险。
+\end{itemize}
+
+\begin{lstlisting}[style=cli]
+codex --full-auto
+\end{lstlisting}
+
+它相当于一个比较实用的低摩擦默认组合：
+
+\begin{lstlisting}[style=cli]
+--sandbox workspace-write --ask-for-approval on-request
+\end{lstlisting}
+
+\begin{sumbox}
+本地开发优先从 \texttt{workspace-write} 起步。先别急着全放开。
+\end{sumbox}
+
+\section{提示词速记}
+
+\subsection{一条好提示词的四要素}
+
+\begin{enumerate}
+  \item 目标：你到底要它做什么。
+  \item 范围：只围绕哪些文件、功能或问题。
+  \item 限制：不要做什么。
+  \item 输出格式：你希望它最后怎么汇报。
+\end{enumerate}
+
+\subsection{直接可用模板}
+
+\textbf{看项目：}
+\begin{lstlisting}[style=prompt]
+请按新手视角介绍当前项目，重点说入口、核心目录、主流程和推荐阅读顺序。
+\end{lstlisting}
+
+\textbf{定位功能：}
+\begin{lstlisting}[style=prompt]
+请帮我定位登录相关代码，告诉我入口、涉及文件和大致调用链。
+\end{lstlisting}
+
+\textbf{修 bug：}
+\begin{lstlisting}[style=prompt]
+这是报错信息。请先解释最可能原因，再给排查顺序，最后给最小修改方案。
+\end{lstlisting}
+
+\textbf{小改动：}
+\begin{lstlisting}[style=prompt]
+请只修改提示文案，不要改业务逻辑。
+修改后列出改动文件和验证方法。
+\end{lstlisting}
+
+\section{稳定工作流}
+
+\subsection{本地开发推荐顺序}
+
+\begin{enumerate}
+  \item 先解释项目或问题；
+  \item 再定位文件和调用链；
+  \item 再做小范围修改；
+  \item 改完跑 \texttt{/review}；
+  \item 再看 \texttt{/diff}；
+  \item 最后自己验证。
+\end{enumerate}
+
+\subsection{为什么要用 \texttt{AGENTS.md}}
+
+\texttt{AGENTS.md} 适合沉淀这些长期规则：
+\begin{itemize}
+  \item 仓库结构和重点目录；
+  \item 构建、测试、lint 命令；
+  \item 哪些文件不要动；
+  \item 交付时怎么总结。
+\end{itemize}
+
+\begin{lstlisting}[style=cli]
+/init
+\end{lstlisting}
+
+\begin{tipbox}
+如果你在三次任务里都重复说过同一句话，那它大概率就该进 \texttt{AGENTS.md} 了。
+\end{tipbox}
+
+\section{自动化与 CI}
+
+\subsection{最小示例}
+
+\begin{lstlisting}[style=cli]
+export CODEX_API_KEY=your_api_key
+
+codex exec --json \
+  -o codex-summary.txt \
+  "Review the current repository and summarize the top 3 risks"
+\end{lstlisting}
+
+\subsection{这三个参数分别干什么}
+
+\begin{itemize}
+  \item \texttt{CODEX\_API\_KEY}：给非交互执行做认证。
+  \item \texttt{--json}：让输出更适合脚本消费。
+  \item \texttt{-o}：把最后一条摘要单独落盘。
+\end{itemize}
+
+\begin{warnbox}
+自动化更适合做总结、分类、只读检查。大范围自动改代码，先在本地跑稳再说。
+\end{warnbox}
+
+\section{排错与避坑}
+
+\subsection{真实排错顺序}
+
+当你遇到报错时，最稳的顺序通常是：
+\begin{enumerate}
+  \item 先让它解释错误类型；
+  \item 再让它定位最可能的文件；
+  \item 再让它给最小修复方案；
+  \item 最后让它说明验证方法。
+\end{enumerate}
+
+\subsection{最容易踩的坑}
+
+\begin{itemize}
+  \item 没确认当前目录就开始操作。
+  \item 任务太宽，结果很空。
+  \item 一上来就给太大权限。
+  \item 改完不看 \texttt{/diff}，也不做验证。
+  \item 在 CI 里直接照搬交互式习惯。
+\end{itemize}
+
+\begin{sumbox}
+新手最大的问题不是不会敲命令，而是没有形成节奏：确认目录、收紧范围、审改动、做验证。
+\end{sumbox}
+
+\section{练习题}
+
+\subsection{练习一}
+
+让 Codex 给出一个公开小仓库的入口文件、核心目录和推荐阅读顺序。
+
+\subsection{练习二}
+
+选一个功能，例如登录或上传，让它解释入口、涉及文件和调用链。
+
+\subsection{练习三}
+
+只做一个低风险改动，例如改文案、补说明或补一条简单测试。
+
+\subsection{练习四}
+
+跑一遍：
+
+\begin{lstlisting}[style=cli]
+/review
+/diff
+\end{lstlisting}
+
+然后判断它给出的 review 是否真的落到了当前改动上。
+
+\section{最后只记这几句}
+
+\begin{tcolorbox}[colback=SummaryLight,colframe=Summary,title=3 分钟背完,fonttitle=\bfseries]
+\begin{enumerate}
+  \item 日常开发多用 \texttt{codex}，脚本化多用 \texttt{codex exec}。
+  \item 第一次上手先做最小任务，不要急着大改。
+  \item 好提示词要写清楚目标、范围、限制、输出格式。
+  \item 本地开发先从 \texttt{workspace-write} 起步。
+  \item 改完一定先 \texttt{/review}，再 \texttt{/diff}，最后自己验证。
+  \item 有重复规则就写进 \texttt{AGENTS.md}。
+\end{enumerate}
+\end{tcolorbox}
+
+\end{document}
