@@ -1,58 +1,58 @@
 # AGENTS.md
 
-## Project Overview
+## 项目概览
 
-- This repository is a web application with a frontend, backend, and shared utilities.
-- The main goal is to keep changes small, easy to review, and safe to verify.
-- Prefer reading existing code and tests before making large edits.
+- 这个仓库包含前端、后端和共享工具模块。
+- 改动的首要目标是：范围小、容易评审、方便验证。
+- 在做较大改动之前，优先先阅读现有代码和测试。
 
-## Repository Map
+## 仓库结构
 
-- `frontend/`: UI code and pages
-- `backend/`: API handlers and business logic
-- `shared/`: code used by both frontend and backend
-- `scripts/`: local maintenance scripts
-- `tests/`: automated tests
-- `docs/`: project documentation
+- `frontend/`：界面和页面代码
+- `backend/`：接口处理和业务逻辑
+- `shared/`：前后端共用代码
+- `scripts/`：本地维护脚本
+- `tests/`：自动化测试
+- `docs/`：项目文档
 
-## Working Rules
+## 工作规则
 
-- Always inspect the current directory and relevant files before editing.
-- Prefer small, targeted changes over broad refactors.
-- Do not modify generated files unless the task explicitly requires it.
-- Do not rename files or move modules unless necessary for the task.
-- If a risky or destructive change is required, explain why before doing it.
+- 修改前先确认当前目录和相关文件。
+- 优先做小而明确的改动，不要轻易做大范围重构。
+- 除非任务明确要求，否则不要修改生成文件。
+- 除非确有必要，否则不要重命名文件或移动模块。
+- 如果需要高风险或破坏性改动，先说明原因再执行。
 
-## Commands
+## 常用命令
 
-- Install dependencies: `npm install`
-- Start development server: `npm run dev`
-- Run unit tests: `npm test`
-- Run lint: `npm run lint`
-- Build project: `npm run build`
+- 安装依赖：`npm install`
+- 启动开发环境：`npm run dev`
+- 运行单元测试：`npm test`
+- 运行静态检查：`npm run lint`
+- 构建项目：`npm run build`
 
-## Code Change Policy
+## 改动原则
 
-- Preserve existing code style and project conventions.
-- Avoid changing unrelated files.
-- Add comments only when the code would otherwise be hard to understand.
-- When fixing a bug, prefer the smallest correct change first.
+- 保持现有代码风格和项目约定。
+- 不要顺手修改无关文件。
+- 只有在代码本身不够直观时才添加注释。
+- 修 bug 时优先选择最小且正确的改动。
 
-## Validation
+## 验证要求
 
-- After code changes, run the smallest relevant validation step first.
-- If the task affects app behavior, run related tests when available.
-- If you cannot run a needed check, say so clearly in the final summary.
+- 改完代码后，先执行最小但相关的验证步骤。
+- 如果任务影响了应用行为，尽量运行相关测试。
+- 如果有必须做但无法运行的检查，请在最终总结里明确说明。
 
-## Output Expectations
+## 输出要求
 
-- Summarize what changed in plain language.
-- List modified files when the task is non-trivial.
-- Mention validation performed.
-- Mention remaining risks or follow-up checks if any.
+- 用通俗的话总结这次改了什么。
+- 如果任务不算特别简单，请列出改动过的文件。
+- 说明已经做了哪些验证。
+- 如果还有剩余风险或后续检查项，也请写出来。
 
-## Safe Defaults
+## 默认策略
 
-- For vague requests, ask clarifying questions or propose a short plan first.
-- For large tasks, break work into smaller steps.
-- Prefer explanation before modification when the user is still exploring the codebase.
+- 遇到模糊需求时，先澄清问题或先给一个简短计划。
+- 遇到较大任务时，先拆成更小的步骤。
+- 如果用户还在熟悉代码库，优先先解释，再修改。
