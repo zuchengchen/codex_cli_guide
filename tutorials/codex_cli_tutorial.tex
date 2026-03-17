@@ -998,6 +998,8 @@ codex review --base main
 
 官方 best practices 里有一个很关键的提醒：如果你不告诉 Codex 该怎么构建、怎么测试，它就不容易验证自己的工作。所以你可以在提示里直说：
 
+这里顺手解释一下：\texttt{lint} 一般指\textbf{静态检查}，主要用来提前发现格式、风格和一些明显的代码问题。
+
 \begin{lstlisting}[style=prompt]
 改完以后请运行项目已有的测试命令。如果你不确定，先搜索仓库里现有的 test / build / lint 脚本再决定。
 \end{lstlisting}
