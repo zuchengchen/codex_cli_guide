@@ -850,6 +850,33 @@ codex
   \item 想从 shell 直接恢复最近一次：\texttt{codex resume --last}
 \end{itemize}
 
+\subsection{会话命令对照图}
+
+\begin{center}
+\begin{tcbraster}[raster columns=2, raster equal height=rows, raster column skip=6pt, raster row skip=6pt]
+\begin{tcolorbox}[colback=SummaryLight, colframe=Summary, title=\texttt{/new}]
+在当前终端里直接开一段新的 conversation。\\
+\textbf{适合：}想重开一轮，但不想退出 Codex。
+\end{tcolorbox}
+\begin{tcolorbox}[colback=AccentLight, colframe=Accent, title=\texttt{/clear}]
+先清空当前屏幕，再开始新的 chat。\\
+\textbf{适合：}内容太乱，想顺手清屏。
+\end{tcolorbox}
+\begin{tcolorbox}[colback=SummaryLight, colframe=Summary, title=\texttt{/resume}]
+恢复之前保存过的会话。\\
+\textbf{适合：}切回某个旧 session，继续原来的上下文。
+\end{tcolorbox}
+\begin{tcolorbox}[colback=AccentLight, colframe=Accent, title=\texttt{/fork}]
+基于已有会话分一条新线。\\
+\textbf{适合：}保留旧思路，但另开一个方向继续试。
+\end{tcolorbox}
+\end{tcbraster}
+\end{center}
+
+\begin{tipbox}
+一句话记忆：\texttt{/new} 是重开，\texttt{/clear} 是清屏重开，\texttt{/resume} 是回到旧会话，\texttt{/fork} 是从旧会话分叉。
+\end{tipbox}
+
 \begin{sumbox}
 斜杠命令的核心价值，是让你在同一场会话里完成“看状态、改权限、切模型、看 diff、做 review”这些高频动作，而不用来回跳出会话。
 \end{sumbox}

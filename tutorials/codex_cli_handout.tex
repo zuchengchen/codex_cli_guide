@@ -371,6 +371,29 @@ codex --full-auto
 
 可以，但更像“恢复某个已保存会话”，不是标签页式常驻切换。日常最常用的是 \texttt{/resume}、\texttt{/fork}，以及 shell 里的 \texttt{codex resume}。
 
+\subsection{对照图}
+
+\begin{center}
+\begin{tcbraster}[raster columns=2, raster equal height=rows, raster column skip=6pt, raster row skip=6pt]
+\begin{tcolorbox}[colback=AccentLight, colframe=Accent, title=\texttt{/new}]
+原地开新会话。\\
+\textbf{适合：}不退出终端，直接重开。
+\end{tcolorbox}
+\begin{tcolorbox}[colback=SummaryLight, colframe=Summary, title=\texttt{/clear}]
+清屏后再开新会话。\\
+\textbf{适合：}屏幕太乱，想顺手清掉。
+\end{tcolorbox}
+\begin{tcolorbox}[colback=AccentLight, colframe=Accent, title=\texttt{/resume}]
+恢复旧会话。\\
+\textbf{适合：}切回上次的上下文。
+\end{tcolorbox}
+\begin{tcolorbox}[colback=SummaryLight, colframe=Summary, title=\texttt{/fork}]
+从旧会话分叉。\\
+\textbf{适合：}保留旧讨论，再开新线。
+\end{tcolorbox}
+\end{tcbraster}
+\end{center}
+
 \section{自动化与 CI}
 
 \subsection{最小示例}
