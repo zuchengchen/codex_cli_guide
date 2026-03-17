@@ -756,6 +756,10 @@ CLI 里很多高频操作，不一定要回到 shell 里敲完整命令。官方
 /plan & 先出执行计划 & 任务较大时先计划再动手 \\
 /diff & 看 Git diff & 改完先审一眼再提交 \\
 /review & 做工作区评审 & 查行为风险、缺测试、潜在回归 \\
+/new & 开一段新会话 & 想在当前 CLI 里重开一轮，不退出终端 \\
+/clear & 清屏并新开会话 & 想把终端内容清掉，再开始新对话 \\
+/resume & 恢复旧会话 & 想在交互里切到之前保存的会话 \\
+/fork & 从旧会话分叉 & 想保留旧上下文，但另开一条新线 \\
 /mention & 显式提某个文件 & 强制把某个路径拉进上下文 \\
 /compact & 压缩长会话 & 对话很长时瘦身，保留重点 \\
 /init & 生成 \texttt{AGENTS.md} 脚手架 & 把仓库规则写成长期提示 \\
@@ -803,18 +807,47 @@ CLI 里很多高频操作，不一定要回到 shell 里敲完整命令。官方
   \item 你准备进入更复杂的分析、修改或审查，想换到更强的模型。
 \end{itemize}
 
-\subsection{怎么新开一个会话？}
+\subsection{\texttt{/new} 和 \texttt{/clear}：在当前终端里重开一轮}
 
-这个点确实容易被忽略。\textbf{新开会话本身不是斜杠命令。}最直接的做法是退出当前交互，再重新运行：
+\texttt{/new} 就是用来在\textbf{当前 CLI 会话里开启一段新的 conversation} 的，不用先退出终端。\\
+\texttt{/clear} 的作用更直接一些：\textbf{先清空当前屏幕显示，再开始一段新的 chat}。如果你只是想重新聊一轮，但不在乎清不清屏，用 \texttt{/new} 就够了。
+
+\begin{lstlisting}[style=cli]
+/new
+/clear
+\end{lstlisting}
+
+\subsection{\texttt{/resume} 和 \texttt{/fork}：恢复旧会话，或者从旧会话分叉}
+
+\texttt{/resume} 用来恢复之前保存过的会话；\texttt{/fork} 则是基于已有会话分一条新线。对于“我能不能在多个会话间切换”这个问题，最接近的答案是：\textbf{可以切到别的已保存会话，但方式是恢复或分叉，不是像浏览器标签页那样常驻并排切。}
+
+\begin{lstlisting}[style=cli]
+/resume
+/fork
+\end{lstlisting}
+
+如果你在 shell 里操作，也可以直接用：
+
+\begin{lstlisting}[style=cli]
+codex resume --last
+codex fork --last
+\end{lstlisting}
+
+\subsection{什么时候退出后重开 \texttt{codex}？}
+
+如果你是想连终端态都一起重置，或者你已经退出了交互，那当然也可以直接重新运行：
 
 \begin{lstlisting}[style=cli]
 codex
 \end{lstlisting}
 
-如果你不是想“全新开始”，而是想基于旧上下文继续分叉或恢复，那再考虑：
+但从日常使用角度看，优先级通常是：
 \begin{itemize}
-  \item \texttt{codex resume --last}：继续最近一次会话；
-  \item \texttt{codex fork --last}：从最近一次会话分出一条新分支。
+  \item 想原地开启一轮新对话：\texttt{/new}
+  \item 想清屏后再开：\texttt{/clear}
+  \item 想切到旧会话：\texttt{/resume}
+  \item 想从旧会话分一条新线：\texttt{/fork}
+  \item 想从 shell 直接恢复最近一次：\texttt{codex resume --last}
 \end{itemize}
 
 \begin{sumbox}
@@ -1988,7 +2021,20 @@ TypeError: Cannot read properties of undefined (reading 'map')
 
 当你发现当前会话已经同时混进了多个目标，比如“看项目结构、修 bug、改文案、做 CI”，这时就该拆。一个会话尽量只服务一个主目标，后续会更稳，也更容易复盘。
 
-\subsection{Q4：文档里是不是还有命令没讲？}
+\subsection{Q4：会话到底怎么切？能像别的工具那样在多个会话间切来切去吗？}
+
+可以，但要分清楚是哪一种“切”。
+
+\begin{itemize}
+  \item 想在当前终端里立刻开一轮新的：用 \texttt{/new}
+  \item 想清屏后再开新的：用 \texttt{/clear}
+  \item 想切回某个旧会话：用 \texttt{/resume}
+  \item 想保留旧会话内容，但分一条新线：用 \texttt{/fork}
+\end{itemize}
+
+如果你期待的是像某些工具那样，在同一界面里长期挂着多个 session 标签来回点切，那 Codex CLI 的主思路不是这个。它更像是：\textbf{把之前的会话记录起来，需要时再恢复、分叉或新开。}
+
+\subsection{Q5：文档里是不是还有命令没讲？}
 
 有，但大多是\textbf{刻意没有展开}。这份教程优先覆盖的是入门最常用的一层，所以像下面这些命令虽然存在，但没有作为主线重点：
 \begin{itemize}
@@ -2000,7 +2046,7 @@ TypeError: Cannot read properties of undefined (reading 'map')
 
 如果你的目标是“先把 Codex CLI 用起来”，这些命令可以先知道有这么回事，但不一定要在第一轮教程里深讲。
 
-\subsection{Q5：它改完代码后，我最少要做什么检查？}
+\subsection{Q6：它改完代码后，我最少要做什么检查？}
 
 最少做三件事：
 \begin{enumerate}
