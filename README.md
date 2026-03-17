@@ -4,17 +4,17 @@
 
 仓库里主要包含两份内容：
 - 一份较完整的《Codex CLI 使用教程》
-- 一份适合培训、复习、分享的讲义版摘要
+- 一份适合培训、复习、分享的讲义摘要
 
 入口如下：
 
-- [长版教程 PDF](tutorials/codex_cli_tutorial.pdf)
-- [讲义版摘要 PDF](tutorials/codex_cli_handout.pdf)
+- [完整教程 PDF](tutorials/codex_cli_tutorial.pdf)
+- [讲义摘要 PDF](tutorials/codex_cli_handout.pdf)
 
 对应的 LaTeX 源文件：
 
-- [长版教程源码](tutorials/codex_cli_tutorial.tex)
-- [讲义版源码](tutorials/codex_cli_handout.tex)
+- [完整教程源码](tutorials/codex_cli_tutorial.tex)
+- [讲义摘要源码](tutorials/codex_cli_handout.tex)
 
 提示词文件：
 
