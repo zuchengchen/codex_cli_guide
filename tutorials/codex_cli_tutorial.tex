@@ -1921,6 +1921,47 @@ TypeError: Cannot read properties of undefined (reading 'map')
 当版本变化发生时，不要先怀疑自己记错了，也不要先怀疑教程错了。先看本地 help，这是最快的判断方法。
 \end{sumbox}
 
+\section{FAQ}
+
+\begin{learnbox}
+学完这一节，你会对几个最常见的新手问题有直接答案，尤其是“上下文窗口超了怎么办”这种很容易卡住的问题。
+\end{learnbox}
+
+\subsection{Q1：如果上下文窗口超了，应该怎么办？}
+
+最实用的做法不是“硬塞更多内容”，而是\textbf{主动压缩上下文}。可以按这个顺序处理：
+\begin{enumerate}
+  \item 先缩小任务范围，只围绕一个功能、一个报错或一组文件继续问。
+  \item 用 \texttt{/compact} 压缩长会话，把已经确认的背景收成短摘要。
+  \item 用 \texttt{/mention} 或直接点名文件路径，只把真正关键的文件拉进当前上下文。
+  \item 如果当前话题已经太散，直接开一轮新会话，并把上一轮结论用 3 到 5 句话重新总结后贴进去。
+\end{enumerate}
+
+\begin{tipbox}
+判断标准很简单：如果你已经开始反复贴长日志、长代码、长历史对话，就说明该收缩上下文了。先总结，再继续，通常比硬接着聊更稳。
+\end{tipbox}
+
+\subsection{Q2：它回答得很空泛，是模型不行吗？}
+
+大多数时候不是。更常见的原因是任务太宽、目标不够具体，或者没有要求它按文件、按步骤、按输出格式回答。先把问题缩到“哪个功能、哪几个文件、最后要什么格式”，效果通常会马上变好。
+
+\subsection{Q3：什么时候该开新会话，而不是一直接着问？}
+
+当你发现当前会话已经同时混进了多个目标，比如“看项目结构、修 bug、改文案、做 CI”，这时就该拆。一个会话尽量只服务一个主目标，后续会更稳，也更容易复盘。
+
+\subsection{Q4：它改完代码后，我最少要做什么检查？}
+
+最少做三件事：
+\begin{enumerate}
+  \item 看 \texttt{/diff}，确认改动范围对不对；
+  \item 跑最相关的测试、构建或 lint；
+  \item 自己走一遍最关键的用户路径。
+\end{enumerate}
+
+\begin{sumbox}
+FAQ 里最值得先记的一条就是：上下文一旦开始发散，就收缩任务、压缩会话、必要时新开一轮。不要指望靠堆更多上下文来解决所有问题。
+\end{sumbox}
+
 \section{官方资源与版本说明}
 
 \begin{learnbox}
@@ -1976,18 +2017,5 @@ TypeError: Cannot read properties of undefined (reading 'map')
 \node[card] (c6) at (3.6,-6.5) {\textbf{6. 一句话记忆}\\说清楚任务，小步推进，看状态，审改动，做验证。};
 \end{tikzpicture}
 \end{center}
-
-\section*{补充优化建议}
-\addcontentsline{toc}{section}{补充优化建议}
-
-如果继续优化，这份教程还可以增加下面这些内容：
-\begin{itemize}
-  \item 增加“多平台附录”：Windows、macOS、Linux 的安装与路径差异。
-  \item 增加“团队协作版 AGENTS.md”：针对多人仓库补上分支策略和发布规范。
-  \item 增加“截图版讲义”：把关键终端画面做成图文页，适合培训或分享。
-  \item 增加“FAQ 页”：把最常见的新手问题集中回答。
-  \item 增加“公开仓库实战版”：绑定一个真实开源仓库，把整套流程完整跑一遍。
-  \item 增加“练习答案页”：给出每道练习题可能的提问方式和合格结果示例。
-\end{itemize}
 
 \end{document}

@@ -383,6 +383,26 @@ codex exec --json \
 新手最大的问题不是不会敲命令，而是没有形成节奏：确认目录、收紧范围、审改动、做验证。
 \end{sumbox}
 
+\section{FAQ}
+
+\subsection{上下文窗口超了怎么办？}
+
+不要继续硬塞更多内容，优先这样做：
+\begin{enumerate}
+  \item 缩小任务范围，只盯一个功能或一个报错。
+  \item 用 \texttt{/compact} 压缩长会话。
+  \item 只点名真正关键的文件，不要一次拉太多目录。
+  \item 必要时开新会话，并先用几句话总结上一轮结论。
+\end{enumerate}
+
+\subsection{它回答得很空怎么办？}
+
+大多数时候是任务太宽。把问题改成“哪几个文件、哪个功能、最后要什么格式”，通常会立刻好很多。
+
+\subsection{最少要做哪些复核？}
+
+至少做三件事：看 \texttt{/diff}、跑相关测试或 lint、自己验证关键路径。
+
 \section{练习题}
 
 \subsection{练习一}
