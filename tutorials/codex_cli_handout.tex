@@ -236,6 +236,8 @@ codex login status
 
 \section{最常用命令}
 
+把第一句任务说清楚以后，下一步就是认入口：什么时候直接进会话，什么时候跑单次命令，什么时候留在会话里用斜杠命令。先别把这一页当命令大全来背，先把“眼前这个场景该走哪条路”搞明白。
+
 \rowcolors{2}{white}{AccentLight}
 \begin{longtable}{>{\ttfamily\raggedright\arraybackslash}p{0.24\textwidth} >{\raggedright\arraybackslash}p{0.22\textwidth} >{\raggedright\arraybackslash}p{0.40\textwidth}}
 \toprule
@@ -448,6 +450,8 @@ codex --full-auto
 
 \section{自动化与 CI}
 
+前面讲的，都是你人在终端前盯着会话用的情况。下面切到另一类场景：不连续对话，而是把一次性任务塞进脚本或 CI。
+
 \subsection{最小示例}
 
 \begin{lstlisting}[style=cli]
@@ -527,7 +531,7 @@ codex exec --json \
 
 \subsection{最少要做哪些复核？}
 
-至少做三件事：看 \texttt{/diff}、跑相关测试或 lint、自己验证关键路径。
+如果你只做最低限度检查，至少做三件事：看 \texttt{/diff}、跑相关测试或 lint、自己验证关键路径。时间允许的话，再补一次 \texttt{/review} 会更稳。
 
 \section{高手常用招式}
 
