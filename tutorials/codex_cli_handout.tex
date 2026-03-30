@@ -207,6 +207,19 @@ codex login status
 printenv OPENAI_API_KEY | codex login --with-api-key
 \end{lstlisting}
 
+\subsection{Linux 环境下先确认这四件事}
+
+下面默认你用的是 Linux 终端。无论你是在本地、SSH 到远端，还是在容器里，第一次开始前都建议先跑：
+
+\begin{lstlisting}[style=cli]
+pwd
+ls
+codex --help
+codex login status
+\end{lstlisting}
+
+这四步分别对应四个关键问题：我现在在哪、这是不是目标项目、CLI 能不能用、认证是不是已经就绪。
+
 \subsection{第一次提问}
 
 \begin{lstlisting}[style=prompt]
@@ -246,6 +259,16 @@ codex apply <TASK\_ID> & 应用某次任务 diff & 结果要落到工作树时 \
 \begin{tipbox}
 如果你只背三个入口，先背 \texttt{codex}、\texttt{codex exec}、\texttt{codex review}。
 \end{tipbox}
+
+\subsection{现在该用哪个入口？}
+
+\begin{itemize}
+  \item 想连续对话、边看边追问：\texttt{codex}
+  \item 想脚本化、跑 CI、做一次性任务：\texttt{codex exec}
+  \item 已经在会话里，想原地重开：\texttt{/new} 或 \texttt{/clear}
+  \item 想回到旧会话：\texttt{/resume} 或 \texttt{codex resume --last}
+  \item 想保留旧思路，再开一条新线：\texttt{/fork}
+\end{itemize}
 
 \section{权限与审批}
 
@@ -326,10 +349,33 @@ codex --full-auto
   \item 最后自己验证。
 \end{enumerate}
 
+\subsection{三轮追问示例}
+
+\begin{enumerate}
+  \item 第一轮拿地图：先问入口文件、相关目录、阅读顺序。
+  \item 第二轮抓主线：只盯一个功能，让它列关键文件和调用链。
+  \item 第三轮要交付：只改一个小点，并要求按“改动文件 / 验证 / 风险”总结。
+\end{enumerate}
+
+\subsection{任务完成验收卡}
+
+一轮任务结束前，至少自己确认四件事：
+\begin{itemize}
+  \item 改动范围有没有控住；
+  \item 实际跑了哪些验证；
+  \item 还有什么剩余风险；
+  \item 现在适不适合提交。
+\end{itemize}
+
+如果你想让 Codex 按这个格式汇报，可以直接说：
+
+\begin{lstlisting}[style=prompt]
+请按“改动文件 / 验证情况 / 剩余风险 / 是否建议现在提交”四项总结。
+\end{lstlisting}
+
 \subsection{为什么要用 \texttt{AGENTS.md}}
 
 \texttt{AGENTS.md} 适合沉淀这些长期规则：
-\texttt{lint} 一般就是静态检查，用来提前发现格式、风格和一些明显代码问题。
 \begin{itemize}
   \item 仓库结构和重点目录；
   \item 构建、测试、lint 命令；
@@ -440,6 +486,19 @@ codex exec --json \
   \item 在 CI 里直接照搬交互式习惯。
 \end{itemize}
 
+\subsection{高风险边界}
+
+下面这些事，别一上来就让 Codex 直接放手执行：
+\begin{itemize}
+  \item 删除、覆盖、批量改名、批量格式化；
+  \item 破坏性 Git 操作；
+  \item 数据库迁移、数据回填、修复脚本；
+  \item 密钥、认证缓存、生产配置；
+  \item 会触发外部副作用的命令。
+\end{itemize}
+
+更稳的做法是先说：先不要执行，先列风险、影响范围、回滚方法。
+
 \begin{sumbox}
 新手最大的问题不是不会敲命令，而是没有形成节奏：确认目录、收紧范围、审改动、做验证。
 \end{sumbox}
@@ -489,6 +548,15 @@ codex exec --json \
 
 然后判断它给出的 review 是否真的落到了当前改动上。
 
+\subsection{合格结果长什么样？}
+
+\begin{itemize}
+  \item 练习一至少要给出具体路径、推荐顺序、为什么先看这些文件。
+  \item 练习三至少要说清改了哪些文件、没改什么、怎么验证。
+  \item 练习四至少要把真正的问题和可选优化分开。
+  \item 练习五至少要把目标、范围、限制、输出格式写清楚。
+\end{itemize}
+
 \section{最后只记这几句}
 
 \begin{tcolorbox}[colback=SummaryLight,colframe=Summary,title=3 分钟背完,fonttitle=\bfseries]
@@ -498,6 +566,7 @@ codex exec --json \
   \item 好提示词要写清楚目标、范围、限制、输出格式。
   \item 本地开发先从 \texttt{workspace-write} 起步。
   \item 改完一定先 \texttt{/review}，再 \texttt{/diff}，最后自己验证。
+  \item 高风险任务先看计划、风险和回滚，再决定要不要放行。
   \item 有重复规则就写进 \texttt{AGENTS.md}。
 \end{enumerate}
 \end{tcolorbox}

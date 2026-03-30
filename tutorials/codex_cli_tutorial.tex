@@ -195,21 +195,27 @@
   \item 先搞明白：Codex CLI 到底是干什么的
   \item 安装前准备：别一上来就乱装
   \item 安装、登录与首次验证：先让它真实可用
+  \item Linux 环境补充：本地、远端、容器里分别怎么起步
   \item 基本使用流程：第一次怎么顺手
   \item 常见命令与操作方式：交互、恢复、评审、应用改动
   \item 权限、沙箱与审批机制：为什么有些命令能跑，有些要你批准
   \item 实用斜杠命令：在会话里快速切模式和看状态
+  \item 一张图看懂现在该用哪个入口
   \item 最小可运行示例：从进入目录到完成一轮任务
+  \item 三轮对话示例：怎么把问题越问越准
   \item 高质量提示词模板库：直接拿来改
   \item 典型使用场景：什么时候最值得用
   \item 和 Git、测试、非交互模式的配合：从日常开发到脚本化
+  \item 任务完成验收卡：做到哪一步才算真收工
   \item 常见错误与排查思路：真出问题时先查哪里
   \item 使用建议与最佳实践：把偶尔好用变成稳定好用
   \item 新手最容易踩的坑：提前躲开
+  \item 高风险任务边界清单：哪些事别直接放手
   \item 3分钟速读总结
   \item 常用命令速查表
   \item 新手避坑清单
   \item 附录：从零到一演示页
+  \item 附录：练习题的合格答案长什么样
   \item 附录：好提示词 vs 坏提示词
   \item 附录：常见场景小抄
   \item 附录：CI 集成示例
@@ -411,6 +417,36 @@ printenv OPENAI_API_KEY | codex login --with-api-key
 \end{itemize}
 
 官方文档还特别提醒：如果你使用文件形式缓存认证信息，\texttt{\textasciitilde/.codex/auth.json} 需要当成密码对待，绝对不要提交到仓库。
+
+\subsection{Linux 环境下最常见的三种起步方式}
+
+下面默认你用的是 Linux 终端。对新手来说，最常见的其实就是三种环境：
+\begin{itemize}
+  \item \textbf{本地图形界面 Linux}：最省心，直接在项目目录里运行 \texttt{codex}，按提示登录即可。
+  \item \textbf{远端 Linux / SSH}：通常没有浏览器，优先用 \texttt{codex login --device-auth}，或者先在本地登录，再把认证缓存安全地带过去。
+  \item \textbf{容器或云主机里的 Linux}：除了登录，还要确认当前挂载目录是不是你真想操作的工作区，以及容器销毁后认证信息会不会丢。
+\end{itemize}
+
+不管是哪一种，开始前都建议先跑一组最小检查：
+
+\begin{lstlisting}[style=cli]
+pwd
+ls
+codex --help
+codex login status
+\end{lstlisting}
+
+这四步的作用分别很实际：
+\begin{itemize}
+  \item \texttt{pwd}：确认你现在到底站在哪个目录；
+  \item \texttt{ls}：确认眼前是不是你预期的项目；
+  \item \texttt{codex --help}：确认 CLI 本身可用；
+  \item \texttt{codex login status}：确认认证状态是不是已经就绪。
+\end{itemize}
+
+\begin{tipbox}
+如果你在远端 Linux 上工作，最容易忽略的不是命令本身，而是“我现在到底在哪个目录、这个目录是不是可写、认证是不是还在”。先把这三件事确认掉，后面会顺很多。
+\end{tipbox}
 
 \subsection{第一次验证，不要跳过}
 
@@ -741,6 +777,37 @@ codex --add-dir ../shared-lib
 
 CLI 里很多高频操作，不一定要回到 shell 里敲完整命令。官方文档的斜杠命令页里，有几条特别适合新手先记住。
 
+\subsection{先看这张入口选择图}
+
+\begin{center}
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[
+  q/.style={draw=Summary, diamond, aspect=2.1, fill=SummaryLight, align=center, inner sep=2.5pt},
+  a/.style={draw=Accent, rounded corners, fill=AccentLight, minimum width=3.4cm, minimum height=0.95cm, align=center},
+  line/.style={-Latex, thick}
+]
+\node[q] (start) {你现在想做什么？};
+\node[a, below left=14mm and 34mm of start] (chat) {连续对话、逐步迭代\\用 \texttt{codex}};
+\node[a, below right=14mm and 34mm of start] (exec) {脚本、CI、一次性任务\\用 \texttt{codex exec}};
+\node[q, below=16mm of chat] (inside) {已经在会话里了，还想继续怎么走？};
+\node[a, below left=14mm and 28mm of inside] (new) {当前终端里重开一轮\\\texttt{/new} 或 \texttt{/clear}};
+\node[a, below=14mm of inside] (resume) {切回之前保存的会话\\\texttt{/resume} 或 \texttt{codex resume --last}};
+\node[a, below right=14mm and 28mm of inside] (fork) {保留旧讨论再开新线\\\texttt{/fork} 或 \texttt{codex fork --last}};
+
+\draw[line] (start) -- (chat);
+\draw[line] (start) -- (exec);
+\draw[line] (chat) -- (inside);
+\draw[line] (inside) -- (new);
+\draw[line] (inside) -- (resume);
+\draw[line] (inside) -- (fork);
+\end{tikzpicture}
+}
+\end{center}
+
+\begin{tipbox}
+一句话判断：要连续聊就进 \texttt{codex}；要脚本化就用 \texttt{codex exec}；已经在会话里还想换路，就优先想 \texttt{/new}、\texttt{/resume}、\texttt{/fork}。
+\end{tipbox}
+
 \subsection{最值得先记的几条}
 
 \rowcolors{2}{white}{SummaryLight}
@@ -932,6 +999,54 @@ codex
 
 \begin{sumbox}
 最小示例的目标不是展示高级能力，而是让你真正建立起“我已经会跑通第一轮”的感觉。
+\end{sumbox}
+
+\section{三轮对话示例：怎么把问题越问越准}
+
+\begin{learnbox}
+学完这一节，你会知道为什么很多好结果不是“第一问神准”，而是靠两三轮追问把范围一点点压出来。
+\end{learnbox}
+
+很多新手第一轮就想拿到最终答案，但真实工作里，更稳的顺序通常是：先拿地图，再抓主线，最后要求可交付结果。下面用“看懂陌生仓库里的登录逻辑”为例。
+
+\subsection{第一轮：先把地图拿到手}
+
+\begin{lstlisting}[style=prompt]
+请先按新手视角查看当前仓库，告诉我入口文件、和登录最相关的目录，以及推荐阅读顺序。
+先不要修改代码。
+\end{lstlisting}
+
+这一轮的目标不是立刻修东西，而是先让 Codex 把范围从“整个仓库”收成“和登录相关的那几个入口、目录、文件”。
+
+\subsection{第二轮：把范围压到功能级}
+
+\begin{lstlisting}[style=prompt]
+现在只聚焦登录流程。请列出最相关的 3 到 5 个文件，按调用顺序解释它们分别做什么，
+并指出如果我要改“登录失败提示文案”，最可能先看哪一个文件。
+\end{lstlisting}
+
+这一轮你已经不是在听泛泛介绍，而是在逼它回答三件更具体的事：
+\begin{itemize}
+  \item 到底是哪些文件最相关；
+  \item 这些文件之间怎么串起来；
+  \item 如果要改一个很小的点，入口最可能在哪。
+\end{itemize}
+
+\subsection{第三轮：要求它给可交付结果}
+
+\begin{lstlisting}[style=prompt]
+请只修改登录失败提示文案，不要改业务逻辑，也不要顺手重构。
+改完后请按“改动文件 / 为什么改 / 如何验证 / 剩余风险”四项总结。
+\end{lstlisting}
+
+到这一轮，任务边界已经很清楚了：功能只看登录失败提示，改动只碰文案，不做顺手优化，最后还要交付可审的总结格式。
+
+\begin{warnbox}
+如果第二轮你还没拿到具体文件和调用链，就先别急着进入第三轮。追问不是浪费时间，而是在给后面的修改省返工。
+\end{warnbox}
+
+\begin{sumbox}
+一条很稳的追问节奏是：第一轮拿地图，第二轮抓主线，第三轮要交付。这样通常比“一句话把所有要求塞满”更容易得到靠谱结果。
 \end{sumbox}
 
 \section{高质量提示词模板库}
@@ -1170,6 +1285,42 @@ codex exec --skip-git-repo-check "..."
 从“能聊天”到“能进工作流”，关键就三件事：看 diff、跑测试、把重复规则沉淀到 \texttt{AGENTS.md}。而脚本化场景则优先考虑 \texttt{codex exec}。
 \end{sumbox}
 
+\section{任务完成验收卡}
+
+\begin{learnbox}
+学完这一节，你会知道一轮任务做到哪一步才算真正收工，而不是“它说改完了，我就先信了”。
+\end{learnbox}
+
+很多人不是不会用 Codex，而是不知道什么时候该停。最稳的做法，是在结束前拿下面这张验收卡过一遍。
+
+\rowcolors{2}{white}{SummaryLight}
+\begin{longtable}{>{\raggedright\arraybackslash}p{0.22\textwidth} >{\raggedright\arraybackslash}p{0.30\textwidth} >{\raggedright\arraybackslash}p{0.34\textwidth}}
+\toprule
+检查项 & 最低标准 & 不够清楚时可以继续怎么问 \\
+\midrule
+\endhead
+改动范围 & 只碰到预期文件，没顺手改一堆无关内容 & 请列出本轮改动文件，并说明每个文件为什么必须改 \\
+验证情况 & 至少说明跑了哪些检查，或者明确哪些没跑 & 请只列出你实际执行过的验证，以及还没验证的部分 \\
+结果说明 & 能用通俗的话讲清楚“这次到底改了什么” & 请用业务视角总结本次变化，不要只重复 diff \\
+剩余风险 & 能指出最值得我再看的边界和潜在回归点 & 请列出当前改动最值得我复核的两个风险点 \\
+提交准备 & 你自己能判断现在适不适合提交或继续补检查 & 基于当前状态，你建议现在提交，还是先补哪一步 \\
+\bottomrule
+\end{longtable}
+
+如果你想让 Codex 按这张卡汇报，可以直接说：
+
+\begin{lstlisting}[style=prompt]
+请按“改动文件 / 验证情况 / 剩余风险 / 是否建议现在提交”四项总结这次工作。
+\end{lstlisting}
+
+\begin{warnbox}
+不要把“它说自己验证过了”直接当验收结果。你真正要看的，是它到底验证了什么、没验证什么，以及这些检查够不够覆盖你的关键路径。
+\end{warnbox}
+
+\begin{sumbox}
+任务完成的判断标准不是“它停下来了”，而是你已经看清改了什么、怎么验的、还剩什么风险，以及现在能不能安心提交。
+\end{sumbox}
+
 \section{常见错误与排查思路}
 
 \begin{learnbox}
@@ -1339,6 +1490,43 @@ ls
 避坑的关键不是记住一堆例外，而是养成流程：确认目录、收紧任务、看状态、审改动、做验证。
 \end{sumbox}
 
+\section{高风险任务边界清单}
+
+\begin{learnbox}
+学完这一节，你会更清楚哪些任务不适合一上来就让 Codex 放手执行，尤其是在你还没做人工复核的时候。
+\end{learnbox}
+
+高风险任务不是“完全不能让 Codex 参与”，而是\textbf{不能直接把执行权整包交出去}。下面这些情况，尤其值得先收紧范围、先看计划、先做人工确认。
+
+\rowcolors{2}{white}{WarnLight}
+\begin{longtable}{>{\raggedright\arraybackslash}p{0.30\textwidth} >{\raggedright\arraybackslash}p{0.40\textwidth}}
+\toprule
+这类任务为什么高风险 & 更稳的做法 \\
+\midrule
+\endhead
+删除、覆盖、批量改名、批量格式化：一旦范围没控住，回滚和 review 都会很痛苦 & 先要求它只列计划和影响范围，再按小批次执行，改完立刻看 \texttt{/diff} \\
+破坏性 Git 操作：比如重写历史、强推、回退到旧提交 & 先自己决定策略，再让它辅助解释影响，不要把最终判断外包出去 \\
+数据库迁移、数据回填、状态修复脚本：副作用大，出错后代价高 & 先让它写风险说明、回滚思路和验证步骤，再由你确认后执行 \\
+密钥、认证缓存、生产配置：一旦泄漏或改错，后果往往比代码 bug 更严重 & 先把敏感文件和目录说清楚，必要时明确要求“只解释，不修改” \\
+会触发外部副作用的命令：部署、发请求、写远端资源、修改系统状态 & 优先用只读方式分析，真正执行前一定要自己审一遍命令含义和影响范围 \\
+\bottomrule
+\end{longtable}
+
+如果你已经知道这是高风险任务，一个很好用的开场方式是：
+
+\begin{lstlisting}[style=prompt]
+这是一个高风险任务。先不要执行，也不要改文件。
+请先列出影响范围、主要风险、回滚方法，以及你建议我先看的最小变更范围。
+\end{lstlisting}
+
+\begin{tipbox}
+高风险任务最怕的不是“工具不够聪明”，而是你没有先把边界、回滚和验证想清楚。先让它帮你分析，再决定要不要放行，通常更稳。
+\end{tipbox}
+
+\begin{sumbox}
+判断一件事要不要谨慎放手，有个很简单的标准：如果做错之后难回滚、难 review、代价高，那它就属于高风险任务。
+\end{sumbox}
+
 \section{3分钟速读总结}
 
 \begin{tcolorbox}[colback=SummaryLight,colframe=Summary,title=如果你现在只想记住最重要的几点,fonttitle=\bfseries]
@@ -1496,6 +1684,74 @@ codex
 
 \begin{sumbox}
 “从零到一演示页”的核心不是仓库名，而是让你掌握一条固定路径：先理解，再定位，再小改，再复核。
+\end{sumbox}
+
+\section{附录：练习题的合格答案长什么样}
+
+\begin{learnbox}
+学完这一节，你会更容易判断自己的练习结果算不算合格。这里不给“标准答案”，而是给“合格答案的样子”。
+\end{learnbox}
+
+因为每个仓库都不一样，所以这页不提供唯一答案。更有用的做法，是看你的结果有没有落到下面这些关键点。
+
+\subsection{练习一：合格结果至少要有路径和顺序}
+
+合格结果通常至少要满足三件事：
+\begin{itemize}
+  \item 指出具体文件路径，而不是只说“入口大概在前端目录”；
+  \item 说明为什么从这个文件开始看；
+  \item 给出一个能真正照着走的阅读顺序。
+\end{itemize}
+
+\begin{lstlisting}[style=cli]
+示例格式：
+1. 入口文件：`src/main.ts`
+2. 最值得先看的目录：`src/router/`、`src/pages/`
+3. 推荐阅读顺序：
+   - 先看 `src/main.ts`，确认应用怎么启动
+   - 再看 `src/router/index.ts`，确认页面入口怎么串起来
+   - 最后看 `src/pages/Login.vue`，把登录页逻辑补上
+\end{lstlisting}
+
+\subsection{练习三：合格结果要控住范围，还要说清怎么验}
+
+如果你做的是低风险小改动，合格结果通常会有这些特征：
+\begin{itemize}
+  \item 只改一两个真正相关的文件；
+  \item 明确说出“没有改业务逻辑”或者“没有顺手重构”；
+  \item 给出至少一条可执行的验证方法。
+\end{itemize}
+
+\begin{lstlisting}[style=cli]
+示例格式：
+- 改动文件：`src/pages/Login.vue`
+- 改动原因：把登录失败提示改得更清楚
+- 未改动部分：没有修改请求逻辑、校验逻辑、路由跳转
+- 验证方法：输入错误密码，确认页面提示文案符合预期
+\end{lstlisting}
+
+\subsection{练习四和练习五：重点看它有没有真的“落地”}
+
+\textbf{Review 练习} 合不合格，重点看这几件事：
+\begin{itemize}
+  \item 它有没有优先指出真实风险，而不是只夸；
+  \item 它的评论有没有对上当前 diff；
+  \item 它有没有把“必须改”和“可选优化”分开。
+\end{itemize}
+
+\textbf{提示词练习} 合不合格，重点看这几件事：
+\begin{itemize}
+  \item 改写后的提示词有没有明确目标、范围、限制、输出格式；
+  \item 结果里是不是明显多了具体文件、动作和验证；
+  \item 你是不是更容易继续追问，而不是继续被迫重开题。
+\end{itemize}
+
+\begin{tipbox}
+自检时有个很实用的判断法：如果你的结果里能直接看到“路径、动作、限制、验证”，通常就已经比“空泛介绍型答案”强很多了。
+\end{tipbox}
+
+\begin{sumbox}
+练习题最怕的不是答错，而是答得看起来很多，却没有路径、没有边界、没有验证。只要你能把这三样做出来，练习就已经很值了。
 \end{sumbox}
 
 \section{附录：好提示词 vs 坏提示词}
