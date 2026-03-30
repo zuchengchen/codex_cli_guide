@@ -224,6 +224,7 @@
   \item 附录：练习题页
   \item 附录：AGENTS.md 示例
   \item 附录：版本变更提示框
+  \item 附录：完整命令参考
   \item 官方资源与版本说明
   \item 一页式复习总结
 \end{enumerate}
@@ -2496,15 +2497,8 @@ TypeError: Cannot read properties of undefined (reading 'map')
 
 \subsection{Q5：文档里是不是还有命令没讲？}
 
-有，但大多是\textbf{刻意没有展开}。这份教程优先覆盖的是入门最常用的一层，所以像下面这些命令虽然存在，但没有作为主线重点：
-\begin{itemize}
-  \item \texttt{codex logout}：登出认证；
-  \item \texttt{codex completion}：生成 shell 补全；
-  \item \texttt{codex mcp} / \texttt{mcp-server}：更偏扩展和集成；
-  \item \texttt{codex sandbox} / \texttt{debug}：更偏调试或高级使用。
-\end{itemize}
-
-如果你的目标是“先把 Codex CLI 用起来”，这些命令可以先知道有这么回事，但不一定要在第一轮教程里深讲。
+现在这份长版里已经补上了\textbf{完整命令参考}，包括顶层命令、常见子命令，以及高频全局参数怎么读。\\
+如果你只是第一次上手，还是建议先走主线章节；如果你准备查命令全景、补边角知识、对照本地版本，直接去后面的“附录：完整命令参考”会更高效。
 
 \subsection{Q6：它改完代码后，我最少要做什么检查？}
 
@@ -2517,6 +2511,354 @@ TypeError: Cannot read properties of undefined (reading 'map')
 
 \begin{sumbox}
 FAQ 里最值得先记的一条就是：上下文一旦开始发散，就收缩任务、压缩会话、必要时新开一轮。不要指望靠堆更多上下文来解决所有问题。
+\end{sumbox}
+
+\section{附录：完整命令参考}
+
+\begin{learnbox}
+学完这一节，你会对当前版本 Codex CLI 的顶层命令有完整地图，也知道每个命令大概该在什么场景下用。你不用把它全背下来，但至少查的时候不会迷路。
+\end{learnbox}
+
+这一节根据你本机 \texttt{codex --help} 以及对应子命令帮助整理。它的目标不是把帮助输出原样抄一遍，而是把“\textbf{命令是干什么的、什么时候值得用、哪些参数最关键}”讲清楚。\\
+另一个容易混淆的点也先说清楚：\textbf{这一节讲的是 CLI 顶层命令和子命令。}会话里的斜杠命令，比如 \texttt{/status}、\texttt{/review}、\texttt{/compact}，前面已经单独讲过了。
+
+\subsection{先看顶层命令总览}
+
+\rowcolors{2}{white}{SummaryLight}
+\begin{longtable}{>{\ttfamily\raggedright\arraybackslash}p{0.19\textwidth} >{\raggedright\arraybackslash}p{0.25\textwidth} >{\raggedright\arraybackslash}p{0.42\textwidth}}
+\toprule
+命令 & 它是干什么的 & 你大概什么时候会用到 \\
+\midrule
+\endhead
+codex [PROMPT] & 启动交互式会话 & 日常本地开发、连续追问、边看边改时最常用 \\
+codex exec & 非交互执行代理任务 & 脚本、CI、一次性任务、结构化输出 \\
+codex review & 非交互代码审查 & 想直接对未提交改动、分支差异或某个 commit 做 review \\
+codex login & 管理登录 & 首次登录、切换认证方式、检查登录状态 \\
+codex logout & 清掉本地认证 & 需要登出、换账号、清理本机凭据时 \\
+codex mcp & 管理外部 MCP 服务 & 给 Codex 接外部工具、外部数据源或第三方服务时 \\
+codex mcp-server & 把 Codex 自己作为 MCP server 暴露出去 & 做更底层的集成、桥接或工具链对接时 \\
+codex app-server & 启动或辅助 app server 相关工具 & 更偏集成、协议生成、IDE 或远端 app server 场景 \\
+codex completion & 生成 shell 补全脚本 & 想让 Bash / Zsh / Fish 里补全更顺手时 \\
+codex sandbox & 手动在 Codex 提供的沙箱里跑命令 & 想测试沙箱行为、单独验证受限执行环境时 \\
+codex debug & 调试工具集合 & 排查 app server 或更底层行为时 \\
+codex apply & 把任务产出的 diff 应用到本地工作树 & 你已经有任务结果，只想把 patch 落到仓库里时 \\
+codex resume & 恢复旧交互会话 & 不想重新讲背景，想接着上次继续干 \\
+codex fork & 从旧会话分叉出一条新线 & 想保留原结论，再试另一种思路时 \\
+codex cloud & 浏览或提交 Codex Cloud 任务 & 用云端任务池、云端执行、再把结果落回本地时 \\
+codex features & 查看或开关功能开关 & 想检查某个 feature flag 是否启用，或手动开关实验特性 \\
+codex help & 查看帮助 & 忘了命令、参数、子命令时最快的入口 \\
+\bottomrule
+\end{longtable}
+
+\begin{tipbox}
+如果你现在只想把主线抓住，先盯住 8 个：\texttt{codex}、\texttt{exec}、\texttt{review}、\texttt{login}、\texttt{logout}、\texttt{apply}、\texttt{resume}、\texttt{fork}。剩下那些命令，更多是扩展、集成或调试层面的能力。
+\end{tipbox}
+
+\subsection{第一组：主线工作流命令}
+
+\textbf{\texttt{codex [PROMPT]}}：这是默认入口。你不写子命令时，Codex 会直接进入交互式会话。\\
+它最适合“边问边追、边看边改”的工作方式。你甚至可以把第一句需求直接作为参数带进去：
+
+\begin{lstlisting}[style=cli]
+codex
+codex "先帮我梳理当前仓库入口、核心目录和推荐阅读顺序"
+\end{lstlisting}
+
+这条命令支持最多的“会话级参数”，比如选模型、选沙箱、选审批策略、切 profile、加搜索、加额外可写目录等。你如果看到帮助里写着“如果没有子命令，选项会转发给 interactive CLI”，意思就是这些参数大多会作用在这一轮会话本身。
+
+\medskip
+\textbf{\texttt{codex exec [PROMPT] [COMMAND]}}：这是非交互入口。它适合脚本、CI、批量总结、结构化输出，不适合那种需要你来回追问很多轮的任务。\\
+它当前还有两个子命令：
+\begin{itemize}
+  \item \texttt{codex exec resume}：在非交互模式下恢复旧 session，并追加一段 prompt。
+  \item \texttt{codex exec review}：在非交互模式下做 review，适合脚本化调用。
+\end{itemize}
+
+最常见的几类参数是：
+\begin{itemize}
+  \item \texttt{--json}：把事件流输出成 JSONL，方便机器消费；
+  \item \texttt{-o} / \texttt{--output-last-message}：把最后一条消息单独写到文件；
+  \item \texttt{--output-schema}：要求最终输出符合某个 JSON Schema；
+  \item \texttt{--skip-git-repo-check}：允许不在 Git 仓库里运行；
+  \item \texttt{--ephemeral}：本轮不把 session 文件持久化到磁盘。
+\end{itemize}
+
+你可以这样用：
+
+\begin{lstlisting}[style=cli]
+codex exec --json -o summary.txt "总结当前改动最主要的三个风险点"
+\end{lstlisting}
+
+\medskip
+\textbf{\texttt{codex review [PROMPT]}}：这是非交互 review 入口。你可以把它理解成“直接跑一轮 reviewer 模式”，不用先进入交互界面。\\
+最关键的三个定位参数是：
+\begin{itemize}
+  \item \texttt{--uncommitted}：看当前 staged、unstaged 和 untracked 变更；
+  \item \texttt{--base <BRANCH>}：拿当前改动和某个基线分支对比；
+  \item \texttt{--commit <SHA>}：只 review 某个 commit 引入的改动。
+\end{itemize}
+
+\begin{lstlisting}[style=cli]
+codex review --uncommitted
+codex review --base main
+\end{lstlisting}
+
+如果你要在脚本里消费结果，又想保留 review 语义，也可以考虑 \texttt{codex exec review}，因为它额外支持 \texttt{--json}、\texttt{-o}、\texttt{--ephemeral} 这类非交互参数。
+
+\medskip
+\textbf{\texttt{codex login}}：管理登录。它本身最重要的两个场景，一个是第一次登录，一个是切换认证方式。\\
+当前最值得知道的入口有三个：
+\begin{itemize}
+  \item \texttt{codex login}：走默认登录流程；
+  \item \texttt{codex login status}：检查当前登录状态；
+  \item \texttt{codex login --with-api-key}：从 stdin 读 API key；
+  \item \texttt{codex login --device-auth}：适合远端 Linux、SSH 或无浏览器环境。
+\end{itemize}
+
+\begin{lstlisting}[style=cli]
+codex login
+codex login status
+printenv OPENAI_API_KEY | codex login --with-api-key
+\end{lstlisting}
+
+\medskip
+\textbf{\texttt{codex logout}}：清掉当前本地认证信息。它的用途很直白，就是登出。\\
+最常见的使用场景是：
+\begin{itemize}
+  \item 你准备换账号；
+  \item 你想清理本机认证缓存；
+  \item 你怀疑本地认证状态出了问题，想重新登录。
+\end{itemize}
+
+\medskip
+\textbf{\texttt{codex apply <TASK\_ID>}}：把某个任务产出的 diff 应用到你本地工作树。帮助里说得很直接，它底层会把结果作为 \texttt{git apply} 打到工作树里。\\
+这条命令特别适合“结果已经有了，但我现在只想把 patch 落盘”这种场景。你需要给它一个 \texttt{TASK\_ID}，所以它不是日常第一次上手就会高频用到的入口。
+
+\medskip
+\textbf{\texttt{codex resume [SESSION\_ID] [PROMPT]}}：恢复旧交互会话。默认是打开 picker；如果你只想接着最近一次，直接加 \texttt{--last}。\\
+它还支持：
+\begin{itemize}
+  \item \texttt{--all}：显示全部 session，而不是只看当前工作目录附近的；
+  \item \texttt{--include-non-interactive}：把非交互 session 也纳入候选；
+  \item 交互会话那批常见参数，比如 \texttt{-m}、\texttt{-s}、\texttt{-a}、\texttt{--search}、\texttt{--add-dir}。
+\end{itemize}
+
+\begin{lstlisting}[style=cli]
+codex resume --last
+codex resume 123e4567-e89b-12d3-a456-426614174000 "继续上次的排查，重点看缓存层"
+\end{lstlisting}
+
+\medskip
+\textbf{\texttt{codex fork [SESSION\_ID] [PROMPT]}}：从旧会话分叉。它和 \texttt{resume} 的差别不是“能不能回到旧上下文”，而是“保不保留原线继续存在”。\\
+当你想把旧结论留着，同时试另一个假设、另一个方案、另一个排障方向时，用它最顺。
+
+\begin{lstlisting}[style=cli]
+codex fork --last
+codex fork 123e4567-e89b-12d3-a456-426614174000 "这次改从状态同步问题的角度再看一遍"
+\end{lstlisting}
+
+\medskip
+\textbf{\texttt{codex help [COMMAND]}}：最朴素，但也最可靠。你忘了什么，就查什么。\\
+如果你只记一条“不会过时”的建议，那就是：
+
+\begin{lstlisting}[style=cli]
+codex help
+codex help exec
+codex exec --help
+\end{lstlisting}
+
+\subsection{第二组：扩展、集成和云端命令}
+
+\textbf{\texttt{codex mcp}}：管理外部 MCP（Model Context Protocol）服务。你可以把它理解成“给 Codex 接外部能力”的入口。\\
+当前子命令有 6 个，分工很清楚：
+
+\rowcolors{2}{white}{AccentLight}
+\begin{longtable}{>{\ttfamily\raggedright\arraybackslash}p{0.20\textwidth} >{\raggedright\arraybackslash}p{0.52\textwidth}}
+\toprule
+子命令 & 用途 \\
+\midrule
+\endhead
+mcp list & 查看当前配置过的 MCP server；加 \texttt{--json} 可以机器可读输出 \\
+mcp get <NAME> & 看某个 MCP server 的具体配置；也支持 \texttt{--json} \\
+mcp add <NAME> --url <URL> & 添加一个基于 HTTP 的 MCP server \\
+mcp add <NAME> -- <COMMAND>... & 添加一个通过 stdio 启动的 MCP server，可配 \texttt{--env KEY=VALUE} \\
+mcp remove <NAME> & 删除一个 MCP server 配置 \\
+mcp login <NAME> & 对某个 MCP server 做 OAuth 登录；可加 \texttt{--scopes} \\
+mcp logout <NAME> & 清掉某个 MCP server 的认证状态 \\
+\bottomrule
+\end{longtable}
+
+\begin{lstlisting}[style=cli]
+codex mcp list
+codex mcp add my-server --url https://example.com/mcp
+codex mcp add local-tools -- /path/to/mcp-server --flag
+\end{lstlisting}
+
+\medskip
+\textbf{\texttt{codex mcp-server}}：把 Codex 自己作为 MCP server 启起来，当前帮助里写的是 stdio 模式。\\
+这条命令对普通日常开发者不算高频，更适合做工具链集成、桥接、IDE 插件、或让别的客户端把 Codex 当服务来调。
+
+\medskip
+\textbf{\texttt{codex app-server}}：实验性命令。它既能启动 app server，也能做协议相关生成。\\
+顶层最关键的是：
+\begin{itemize}
+  \item \texttt{--listen}：选择监听端点，默认是 \texttt{stdio://}，也可以走 websocket；
+  \item 一组 \texttt{--ws-*} 参数：控制 websocket 鉴权方式、token 文件、签名配置等；
+  \item \texttt{generate-ts}：生成 TypeScript 绑定；
+  \item \texttt{generate-json-schema}：生成 JSON Schema。
+\end{itemize}
+
+\begin{lstlisting}[style=cli]
+codex app-server --listen stdio://
+codex app-server generate-ts --out ./generated
+codex app-server generate-json-schema --out ./schema
+\end{lstlisting}
+
+\medskip
+\textbf{\texttt{codex cloud}}：实验性云端任务入口。它的定位不是本地交互，而是“看云端任务、提云端任务、把结果拉回来”。\\
+当前子命令有 5 个：
+
+\rowcolors{2}{white}{SummaryLight}
+\begin{longtable}{>{\ttfamily\raggedright\arraybackslash}p{0.22\textwidth} >{\raggedright\arraybackslash}p{0.50\textwidth}}
+\toprule
+子命令 & 用途 \\
+\midrule
+\endhead
+cloud exec --env <ENV\_ID> [QUERY] & 提交一个新的 Cloud 任务；可加 \texttt{--attempts} 和 \texttt{--branch} \\
+cloud status <TASK\_ID> & 看某个 Cloud 任务的状态 \\
+cloud list & 列任务；支持 \texttt{--env}、\texttt{--limit}、\texttt{--cursor}、\texttt{--json} \\
+cloud diff <TASK\_ID> & 看某个任务的 unified diff；可指定 \texttt{--attempt} \\
+cloud apply <TASK\_ID> & 把某个任务的 diff 应用到本地；也可指定 \texttt{--attempt} \\
+\bottomrule
+\end{longtable}
+
+这条命令最像“云端版的任务队列”。如果你当前主要是在本地终端里工作，可以先知道有它，不一定马上会高频使用。
+
+\medskip
+\textbf{\texttt{codex features}}：查看或切换 feature flags。它更像一个“功能开关面板”，不是日常主线命令。\\
+当前子命令是：
+\begin{itemize}
+  \item \texttt{features list}：看已知 feature 以及当前启用状态；
+  \item \texttt{features enable <FEATURE>}：在 \texttt{config.toml} 里开启一个功能；
+  \item \texttt{features disable <FEATURE>}：在 \texttt{config.toml} 里关闭一个功能。
+\end{itemize}
+
+\begin{lstlisting}[style=cli]
+codex features list
+codex features enable unified_exec
+codex features disable unified_exec
+\end{lstlisting}
+
+\subsection{第三组：环境、沙箱和调试命令}
+
+\textbf{\texttt{codex completion [SHELL]}}：生成 shell 补全脚本。帮助里支持的 shell 包括 \texttt{bash}、\texttt{zsh}、\texttt{fish}、\texttt{powershell}、\texttt{elvish}。\\
+这条命令本身不直接改你的 shell 配置，它只是把补全脚本打印出来或生成出来，后续通常要你自己接到 shell 配置里。
+
+\begin{lstlisting}[style=cli]
+codex completion bash
+codex completion zsh
+\end{lstlisting}
+
+\medskip
+\textbf{\texttt{codex sandbox}}：手动在 Codex 提供的沙箱里跑命令。这个命令不是“让代理在沙箱里工作”的入口，而是你自己显式去调用沙箱能力。\\
+当前有 3 个平台子命令：
+
+\rowcolors{2}{white}{AccentLight}
+\begin{longtable}{>{\ttfamily\raggedright\arraybackslash}p{0.24\textwidth} >{\raggedright\arraybackslash}p{0.48\textwidth}}
+\toprule
+子命令 & 用途 \\
+\midrule
+\endhead
+sandbox linux [COMMAND]... & 在 Linux 沙箱里执行命令；支持 \texttt{--full-auto} \\
+sandbox macos [COMMAND]... & 在 macOS Seatbelt 下执行；额外支持 \texttt{--log-denials} \\
+sandbox windows [COMMAND]... & 在 Windows restricted token 沙箱下执行 \\
+\bottomrule
+\end{longtable}
+
+因为你现在主要写 Linux 教程，所以最值得记的是：
+
+\begin{lstlisting}[style=cli]
+codex sandbox linux --full-auto bash -lc 'pwd && ls'
+\end{lstlisting}
+
+它更适合“验证沙箱行为本身”，而不是替代你平时直接运行 \texttt{codex}。
+
+\medskip
+\textbf{\texttt{codex debug}}：调试工具集合。它当前主要围绕 app server 调试。\\
+当前层级是：
+\begin{itemize}
+  \item \texttt{debug app-server}：app server 调试工具入口；
+  \item \texttt{debug app-server send-message-v2 <USER\_MESSAGE>}：向调试目标发一条消息。
+\end{itemize}
+
+这类命令更偏内部调试、协议调试、集成排障。对绝大多数“我只是想写代码、改文档、做 review”的使用者来说，不属于第一层必学内容。
+
+\subsection{高频全局参数怎么读}
+
+很多帮助里你会反复看到同一批参数。它们不是“每个命令都支持”，但确实是一批\textbf{高频复用参数}。先认熟这些，帮助阅读速度会快很多。
+
+\subsubsection*{会话类命令常见参数}
+
+\rowcolors{2}{white}{SummaryLight}
+\begin{longtable}{>{\ttfamily\raggedright\arraybackslash}p{0.28\textwidth} >{\raggedright\arraybackslash}p{0.44\textwidth}}
+\toprule
+参数 & 作用 \\
+\midrule
+\endhead
+-c, --config <key=value> & 临时覆盖 \texttt{\textasciitilde/.codex/config.toml} 的某个配置项 \\
+--enable / --disable <FEATURE> & 临时打开或关闭某个 feature flag \\
+-m, --model <MODEL> & 指定本轮会话要用的模型 \\
+--oss & 走本地开源模型 provider，而不是默认云端 provider \\
+--local-provider <OSS\_PROVIDER> & 细分本地 provider，比如 \texttt{lmstudio} 或 \texttt{ollama} \\
+-p, --profile <CONFIG\_PROFILE> & 从配置文件里选一个 profile \\
+-s, --sandbox <SANDBOX\_MODE> & 选沙箱级别：\texttt{read-only}、\texttt{workspace-write}、\texttt{danger-full-access} \\
+-a, --ask-for-approval <APPROVAL\_POLICY> & 选审批策略，比如 \texttt{untrusted}、\texttt{on-request}、\texttt{never} \\
+--full-auto & 一个低摩擦默认组合，通常等于更自动的审批 + \texttt{workspace-write} \\
+\shortstack[l]{\texttt{--dangerously-bypass-}\\\texttt{approvals-and-sandbox}} & 完全跳过审批和沙箱，风险极高，只适合你自己非常清楚边界时 \\
+-C, --cd <DIR> & 指定工作根目录 \\
+-i, --image <FILE> & 把图片作为初始输入附上 \\
+--search & 给模型打开 live web search 能力 \\
+--add-dir <DIR> & 在主工作目录之外，再额外加一个可写目录 \\
+--no-alt-screen & 关闭备用屏模式，保留终端滚动历史 \\
+\bottomrule
+\end{longtable}
+
+\subsubsection*{非交互和自动化高频参数}
+
+\rowcolors{2}{white}{AccentLight}
+\begin{longtable}{>{\ttfamily\raggedright\arraybackslash}p{0.28\textwidth} >{\raggedright\arraybackslash}p{0.44\textwidth}}
+\toprule
+参数 & 作用 \\
+\midrule
+\endhead
+--skip-git-repo-check & 允许不在 Git 仓库里运行 \\
+--ephemeral & 不把 session 文件持久化到磁盘 \\
+--json & 把事件或结果输出成 JSONL，方便脚本处理 \\
+-o, --output-last-message <FILE> & 把最后一条消息单独写到文件 \\
+--output-schema <FILE> & 要求最终输出符合某个 JSON Schema \\
+--uncommitted & review 当前未提交改动 \\
+--base <BRANCH> & review 当前改动相对某个基线分支的变化 \\
+--commit <SHA> & review 某个 commit 引入的变化 \\
+--title <TITLE> & 给 review 摘要一个标题 \\
+\bottomrule
+\end{longtable}
+
+\begin{warnbox}
+帮助里经常会重复出现 \texttt{-c}、\texttt{--enable}、\texttt{--disable}。它们不是“这条命令有什么特别功能”，而是整套 CLI 共用的一种配置入口。真正决定场景差异的，通常还是命令本身和那条命令独有的参数。
+\end{warnbox}
+
+\subsection{最后给一个查命令的顺序}
+
+当你忘了某个命令具体怎么用，最稳的顺序通常是：
+\begin{enumerate}
+  \item 先看这节，判断它属于哪一类命令；
+  \item 再跑 \texttt{codex help <command>} 或 \texttt{codex <command> --help}；
+  \item 如果它还有子命令，再继续看 \texttt{codex <command> <subcommand> --help}；
+  \item 最后再结合你当前项目场景决定要不要真的执行。
+\end{enumerate}
+
+\begin{sumbox}
+真正的“完整命令参考”不是把帮助背下来，而是知道三件事：这条命令在哪一层、适合什么场景、我下一步该查哪一级 help。只要这三件事清楚了，你基本就不会在命令树里迷路。
 \end{sumbox}
 
 \section{官方资源与版本说明}
