@@ -157,7 +157,7 @@
   \item 看懂陌生项目；
   \item 定位功能和报错；
   \item 做小范围改动；
-  \item 做 review、总结、验证建议。
+  \item 做代码审查、总结、给出验证建议。
 \end{itemize}
 
 \begin{center}
@@ -201,14 +201,14 @@ codex login
 codex login status
 \end{lstlisting}
 
-如果你走 API key 路线：
+如果你走 API 密钥路线：
 
 \begin{lstlisting}[style=cli]
 printenv OPENAI_API_KEY | codex login --with-api-key
 \end{lstlisting}
 
 \begin{tipbox}
-这两个变量名别混：上面这条命令是在“登录”时从 \texttt{OPENAI\_API\_KEY} 读入 key；到了 \texttt{codex exec} 和 CI 场景，官方更常用的是 \texttt{CODEX\_API\_KEY}。
+这两个变量名别混：上面这条命令是在“登录”时从 \texttt{OPENAI\_API\_KEY} 读入密钥；到了 \texttt{codex exec} 和 CI 场景，官方更常用的是 \texttt{CODEX\_API\_KEY}。
 \end{tipbox}
 
 \subsection{Linux 环境下先确认这四件事}
@@ -245,17 +245,17 @@ codex login status
 \midrule
 \endhead
 codex & 交互式会话 & 本地日常开发最常用 \\
-codex exec "..." & 非交互执行 & 脚本、CI（Continuous Integration，持续集成）、一次性任务 \\
+codex exec "..." & 非交互执行 & 脚本、CI（持续集成）、一次性任务 \\
 codex review --uncommitted & 审查当前改动 & 提交前快速找风险 \\
 codex resume --last & 接着上次会话干 & 不想重复讲背景时 \\
 codex apply <TASK\_ID> & 应用某次任务 diff & 结果要落到工作树时 \\
 /new & 开一轮新会话 & 不退出终端，直接重开一轮 \\
 /clear & 清屏并新开会话 & 想清掉当前屏幕内容时 \\
-/resume & 恢复旧会话 & 想切回之前保存的 session \\
+/resume & 恢复旧会话 & 想切回之前保存的会话 \\
 /fork & 从旧会话分叉 & 想保留上下文，但开一条新线 \\
 /status & 查看会话状态 & 看模型、权限、可写目录 \\
 /permissions & 调整权限模式 & 切换更保守或更自动 \\
-/review & 会话内做 review & 先查风险再看 diff \\
+/review & 会话内做代码审查 & 先查风险再看 diff \\
 /diff & 查看改动 & 改完先审一眼 \\
 /plan & 先出计划 & 大任务先计划再动手 \\
 /init & 生成 \texttt{AGENTS.md} 脚手架 & 想沉淀仓库规则时 \\
@@ -298,7 +298,7 @@ codex apply <TASK\_ID> & 应用某次任务 diff & 结果要落到工作树时 \
 codex --full-auto
 \end{lstlisting}
 
-它相当于一个比较实用的低摩擦默认组合：
+它相当于一个比较省事的默认组合：
 
 \begin{lstlisting}[style=cli]
 --sandbox workspace-write --ask-for-approval on-request
@@ -331,7 +331,7 @@ codex --full-auto
 请帮我定位登录相关代码，告诉我入口、涉及文件和大致调用链。
 \end{lstlisting}
 
-\textbf{修 bug：}
+\textbf{处理报错：}
 \begin{lstlisting}[style=prompt]
 这是报错信息。请先解释最可能原因，再给排查顺序，最后给最小修改方案。
 \end{lstlisting}
@@ -386,7 +386,7 @@ codex --full-auto
 \texttt{AGENTS.md} 适合沉淀这些长期规则：
 \begin{itemize}
   \item 仓库结构和重点目录；
-  \item 构建、测试、lint 命令；
+  \item 构建、测试、静态检查命令；
   \item 哪些文件不要动；
   \item 交付时怎么总结。
 \end{itemize}
@@ -418,12 +418,12 @@ codex --full-auto
   \item 想清屏后再开：\texttt{/clear}
   \item 想切回旧会话：\texttt{/resume}
   \item 想基于旧会话分一条新线：\texttt{/fork}
-  \item 想从 shell 里直接接着最近一次聊：\texttt{codex resume --last}
+  \item 想从命令行里直接接着最近一次聊：\texttt{codex resume --last}
 \end{itemize}
 
 \subsection{能在多个会话间切换吗？}
 
-可以，但更像“恢复某个已保存会话”，不是标签页式常驻切换。日常最常用的是 \texttt{/resume}、\texttt{/fork}，以及 shell 里的 \texttt{codex resume}。
+可以，但更像“恢复某个已保存会话”，不是像浏览器标签页那样一直挂着来回切换。日常最常用的是 \texttt{/resume}、\texttt{/fork}，以及命令行里的 \texttt{codex resume}。
 
 \subsection{对照图}
 
@@ -459,15 +459,15 @@ export CODEX_API_KEY=your_api_key
 
 codex exec --json \
   -o codex-summary.txt \
-  "Review the current repository and summarize the top 3 risks"
+  "审查当前仓库，并总结最主要的 3 个风险点"
 \end{lstlisting}
 
 \subsection{这三个参数分别干什么}
 
 \begin{itemize}
   \item \texttt{CODEX\_API\_KEY}：给非交互执行做认证。
-  \item \texttt{--json}：让输出更适合脚本消费。
-  \item \texttt{-o}：把最后一条摘要单独落盘。
+  \item \texttt{--json}：让输出更适合脚本读取。
+  \item \texttt{-o}：把最后一条摘要单独写到文件里。
 \end{itemize}
 
 \begin{warnbox}
@@ -531,7 +531,7 @@ codex exec --json \
 
 \subsection{最少要做哪些复核？}
 
-如果你只做最低限度检查，至少做三件事：看 \texttt{/diff}、跑相关测试或 lint、自己验证关键路径。时间允许的话，再补一次 \texttt{/review} 会更稳。
+如果你只做最低限度检查，至少做三件事：看 \texttt{/diff}、跑相关测试或静态检查、自己验证关键路径。时间允许的话，再补一次 \texttt{/review} 会更稳。
 
 \section{高手常用招式}
 
@@ -545,7 +545,7 @@ codex exec --json \
   \item 用 \texttt{/fork} 保留旧结论，再试另一条线。
   \item 用 \texttt{/model} 做“先快后深”的分工。
   \item 先定义成功标准，再开始修改。
-  \item review 做成闭环，不是只跑一次。
+  \item 把代码审查做成闭环，不是只跑一次。
   \item 固定交付模板，别让结果每次都飘。
   \item \texttt{codex exec} 优先做总结、分类、只读检查。
 \end{enumerate}
@@ -604,7 +604,7 @@ codex exec --json \
 /diff
 \end{lstlisting}
 
-然后判断它给出的 review 是否真的落到了当前改动上。
+然后判断它给出的审查结果，是否真的落到了当前改动上。
 
 \subsection{练习五}
 
