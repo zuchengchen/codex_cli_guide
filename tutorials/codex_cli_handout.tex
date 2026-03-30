@@ -523,6 +523,52 @@ codex exec --json \
 
 至少做三件事：看 \texttt{/diff}、跑相关测试或 lint、自己验证关键路径。
 
+\section{高手常用招式}
+
+\subsection{这 8 招最值得记}
+
+\begin{enumerate}
+  \item 先比方案，再决定改不改。
+  \item 大仓库先收文件范围，不要一口气全讲。
+  \item 用 \texttt{/fork} 保留旧结论，再试另一条线。
+  \item 用 \texttt{/model} 做“先快后深”的分工。
+  \item 先定义成功标准，再开始修改。
+  \item review 做成闭环，不是只跑一次。
+  \item 固定交付模板，别让结果每次都飘。
+  \item \texttt{codex exec} 优先做总结、分类、只读检查。
+\end{enumerate}
+
+\subsection{直接可抄的进阶提示词}
+
+\textbf{方案评审：}
+\begin{lstlisting}[style=prompt]
+先不要改代码。请给我 2 到 3 种实现方案，分别说明改动范围、优点、风险，并给推荐。
+\end{lstlisting}
+
+\textbf{大仓库控上下文：}
+\begin{lstlisting}[style=prompt]
+先不要全仓库泛讲。请先找出和“登录失败提示”最相关的 5 个文件，只输出路径，并告诉我下一轮先追哪两个。
+\end{lstlisting}
+
+\textbf{成功标准前置：}
+\begin{lstlisting}[style=prompt]
+先不要修改。请先复述目标、列出不做的事、给出完成标准和验证方法。等我确认后再开始。
+\end{lstlisting}
+
+\textbf{结构化交付：}
+\begin{lstlisting}[style=prompt]
+请固定按“结论 / 改动文件 / 验证情况 / 剩余风险 / 下一步建议”汇报。
+\end{lstlisting}
+
+\subsection{最常见的高阶误用}
+
+\begin{itemize}
+  \item 明明该先比方案，却一上来就让它直接改。
+  \item 明明仓库很大，却还在不断塞更多上下文。
+  \item 跑了 \texttt{/review} 就想一次性改完所有建议。
+  \item 想自动化大范围改动，却还没在本地手工跑稳。
+\end{itemize}
+
 \section{练习题}
 
 \subsection{练习一}
