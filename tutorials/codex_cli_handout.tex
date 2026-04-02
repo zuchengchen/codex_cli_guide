@@ -224,6 +224,18 @@ codex login status
 
 这四步分别对应四个关键问题：我现在在哪、这是不是目标项目、CLI 能不能用、认证是不是已经就绪。
 
+\subsection{macOS、Windows、WSL 一句话提醒}
+
+\begin{itemize}
+  \item \textbf{macOS}：整体和 Linux 很像，先确认 \texttt{codex} 在 PATH 里。
+  \item \textbf{PowerShell}：环境变量写法和 Bash 不一样，别直接照抄。
+  \item \textbf{WSL}：把它当独立 Linux；如果项目主要在 WSL 里，就尽量在 WSL 里完成登录、Git 和测试。
+\end{itemize}
+
+\begin{warnbox}
+最容易乱的是 Windows 和 WSL 混着用。项目主要在哪边，就尽量整轮任务都在哪边完成。
+\end{warnbox}
+
 \subsection{第一次提问}
 
 \begin{lstlisting}[style=prompt]
@@ -275,6 +287,17 @@ codex apply <TASK\_ID> & 应用某次任务 diff & 结果要落到工作树时 \
   \item 想回到旧会话：\texttt{/resume} 或 \texttt{codex resume --last}
   \item 想保留旧思路，再开一条新线：\texttt{/fork}
 \end{itemize}
+
+\subsection{什么时候开 \texttt{--search}}
+
+\begin{itemize}
+  \item 只看本地代码：项目结构、调用链、当前分支改动、仓库里的测试命令。
+  \item 开 \texttt{--search}：官方文档、依赖版本差异、外部 API、最新错误说明。
+\end{itemize}
+
+\begin{tipbox}
+先问本地事实，再补外部资料。并要求把“仓库事实”和“外部来源”分开写。
+\end{tipbox}
 
 \section{权限与审批}
 
@@ -357,6 +380,17 @@ codex --full-auto
   \item 最后自己验证。
 \end{enumerate}
 
+\subsection{改坏了先怎么救}
+
+\begin{lstlisting}[style=cli]
+git status
+git diff
+git switch -c backup/codex-check
+git stash push -u -m "before-rollback"
+\end{lstlisting}
+
+先看现场，再保留现场，最后才决定撤哪一部分。能只撤一个文件，就别一上来整批清空。
+
 \subsection{三轮追问示例}
 
 \begin{enumerate}
@@ -398,6 +432,18 @@ codex --full-auto
 \begin{tipbox}
 如果你在三次任务里都重复说过同一句话，那它大概率就该进 \texttt{AGENTS.md} 了。
 \end{tipbox}
+
+\subsection{个人默认习惯写进 \texttt{config.toml}}
+
+\texttt{AGENTS.md} 管仓库规则；\texttt{config.toml} 管你自己的默认习惯，比如常用模型、审批和沙箱组合。
+
+\begin{lstlisting}[style=cli]
+codex -p safe
+codex -p dev
+codex --oss --local-provider ollama -p local
+\end{lstlisting}
+
+先想清楚你最常用的 2 到 3 种模式，再去固化。
 
 \section{会话控制}
 
@@ -469,6 +515,17 @@ codex exec --json \
   \item \texttt{--json}：让输出更适合脚本读取。
   \item \texttt{-o}：把最后一条摘要单独写到文件里。
 \end{itemize}
+
+\subsection{脚本闭环怎么搭}
+
+\begin{lstlisting}[style=cli]
+codex exec --json \
+  --output-schema review-schema.json \
+  -o codex-summary.txt \
+  "审查当前改动" > codex-events.jsonl
+\end{lstlisting}
+
+给人看：\texttt{codex-summary.txt}。给脚本读：\texttt{codex-events.jsonl}。要稳定结构：\texttt{--output-schema}。
 
 \begin{warnbox}
 自动化更适合做总结、分类、只读检查。大范围自动改代码，先在本地跑稳再说。
@@ -581,6 +638,19 @@ codex exec --json \
   \item 想自动化大范围改动，却还没在本地手工跑稳。
 \end{itemize}
 
+\subsection{MCP 先跑一个小例子}
+
+\begin{lstlisting}[style=cli]
+codex mcp list
+codex mcp add docs --url https://example.com/mcp
+\end{lstlisting}
+
+最值得先试的，不是“全接上”，而是让 Codex 同时看本地代码和一个只读外部来源，比如产品文档或内部知识库。
+
+\begin{tipbox}
+第一次接 MCP，先做对照和解释，不要一上来就给外部写权限。
+\end{tipbox}
+
 \section{练习题}
 
 \subsection{练习一}
@@ -633,6 +703,7 @@ codex exec --json \
   \item 改完一定先 \texttt{/review}，再 \texttt{/diff}，最后自己验证。
   \item 高风险任务先看计划、风险和回滚，再决定要不要放行。
   \item 有重复规则就写进 \texttt{AGENTS.md}。
+  \item 查本地问题先看仓库，真要最新资料再开 \texttt{--search}。
 \end{enumerate}
 \end{tcolorbox}
 

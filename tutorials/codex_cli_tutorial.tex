@@ -429,6 +429,35 @@ codex login status
 如果你在远端 Linux 上工作，最容易忽略的不是命令本身，而是“我现在到底在哪个目录、这个目录是不是可写、认证是不是还在”。先把这三件事确认掉，后面会顺很多。
 \end{tipbox}
 
+\subsection{macOS、Windows 和 WSL 用户额外看这几眼}
+
+如果你不是在纯 Linux 环境里工作，也完全没问题。真正容易卡住的，不是 Codex 本身，而是终端、路径、认证和项目目录混在一起了。
+
+\begin{itemize}
+  \item \textbf{macOS}：整体体验和 Linux 很接近。重点确认当前终端是不是你常用的 shell，\texttt{codex} 能不能被 PATH 找到，以及你打开的是不是正确的项目目录。
+  \item \textbf{Windows PowerShell}：命令能跑，但环境变量写法和 Bash 不一样。临时设置 API 密钥时，更像下面这样：
+\end{itemize}
+
+\begin{lstlisting}[style=cli]
+$env:OPENAI_API_KEY="your_api_key"
+$env:CODEX_API_KEY="your_api_key"
+\end{lstlisting}
+
+\begin{itemize}
+  \item \textbf{WSL}：最好把它当成“一台单独的 Linux 环境”来理解。认证、Git、Node、测试命令，尽量都在同一个 WSL 终端里完成。
+\end{itemize}
+
+如果你主要在 WSL 里开发，一个很稳的顺序通常是：
+\begin{enumerate}
+  \item 把项目放在你真正准备开发的那一侧；
+  \item 在那一侧完成登录、运行 \texttt{codex}、跑 Git 和测试；
+  \item 不要一会儿在 Windows 终端里改，一会儿又切去 WSL 里验证。
+\end{enumerate}
+
+\begin{warnbox}
+最容易出问题的场景，是“仓库在 WSL 里，终端却在 Windows 那边；或者认证在一边，Git 和依赖在另一边”。如果项目主要跑在 WSL，就尽量把 Codex、Git、测试也都放在 WSL 里统一完成。
+\end{warnbox}
+
 \subsection{第一次验证，不要跳过}
 
 建议按下面顺序做一次最小验证：
@@ -617,6 +646,41 @@ codex --add-dir ../shared-lib
 \end{lstlisting}
 
 \texttt{--search} 会打开实时网页搜索能力；\texttt{--add-dir} 用来在主工作目录之外，再给 Codex 多一个可写目录。
+
+\subsection{什么时候该开 \texttt{--search}，什么时候只看本地代码}
+
+\texttt{--search} 很有用，但不适合默认一直开着。最稳的判断方法很简单：\textbf{只要问题的答案主要藏在当前仓库里，就先别联网；只有当你真的需要外部最新资料时，再把搜索打开。}
+
+更适合\textbf{只看本地代码}的情况，通常有这些：
+\begin{itemize}
+  \item 你要找入口文件、调用链、核心目录；
+  \item 你要判断当前分支到底改了什么；
+  \item 你要分析仓库里已有的报错、测试、脚本和配置；
+  \item 你要决定“最小改动点”到底落在哪个文件。
+\end{itemize}
+
+更适合\textbf{打开 \texttt{--search}} 的情况，通常有这些：
+\begin{itemize}
+  \item 你要查官方文档、SDK 当前版本行为、参数变化；
+  \item 你要看外部 API、依赖库、平台规则的最新说明；
+  \item 你要确认某个错误码、版本差异、产品限制是不是最近才变过；
+  \item 你明确需要来源链接，而不是只要一句经验判断。
+\end{itemize}
+
+一个很稳的问法，是把本地事实和外部资料拆成两轮：
+
+\begin{lstlisting}[style=prompt]
+先只基于当前仓库回答：登录失败最相关的文件、调用链和最小改动点是什么？
+\end{lstlisting}
+
+\begin{lstlisting}[style=prompt]
+再结合官方文档或可信来源，补充说明这里依赖的 SDK 在当前版本里有没有已知限制。
+请把“仓库里实际行为”和“外部资料里的说法”分开写，并给出来源。
+\end{lstlisting}
+
+\begin{warnbox}
+如果你一上来就把联网搜索和本地代码问题混在一起问，很容易得到“看起来很懂，但落不到当前仓库”的回答。先拿到本地事实，再补外部资料，通常更稳。
+\end{warnbox}
 
 \begin{tipbox}
 如果你只记三个入口，先记 \texttt{codex}、\texttt{codex exec}、\texttt{codex review}。这三类已经覆盖了大多数入门场景。
@@ -1185,6 +1249,55 @@ codex review --uncommitted
 codex review --base main
 \end{lstlisting}
 
+\subsection{改坏了怎么办：先保留现场，再决定怎么撤}
+
+新手最需要补的一课，其实不是“怎么让它改”，而是“改得不对时怎么稳稳收回来”。最怕的不是改坏，而是你在没看清现场时又继续乱改。
+
+更稳的顺序通常是：
+\begin{enumerate}
+  \item 先看 \texttt{git status}；
+  \item 再看 \texttt{git diff}；
+  \item 如果当前现场还值得保留，先切一条救援分支，或者先做一次 \texttt{stash}；
+  \item 最后才决定是继续修、部分撤回，还是整批撤回。
+\end{enumerate}
+
+\begin{lstlisting}[style=cli]
+git status
+git diff
+git switch -c backup/codex-rollback-check
+git stash push -u -m "codex-before-rollback"
+\end{lstlisting}
+
+如果你只是想撤掉某一个文件的工作区改动，可以先从最小动作开始：
+
+\begin{lstlisting}[style=cli]
+git restore path/to/file
+\end{lstlisting}
+
+如果你非常确定这批跟踪文件里的改动都不要了，才考虑：
+
+\begin{lstlisting}[style=cli]
+git restore .
+\end{lstlisting}
+
+这时也可以先让 Codex 帮你“做判断”，而不是“直接执行”：
+
+\begin{lstlisting}[style=prompt]
+先不要直接撤回任何东西。请先根据当前 diff 告诉我：
+1. 哪些改动明显是这次任务引入的
+2. 哪些文件值得保留
+3. 如果我要最小回滚，应该先撤哪几个文件
+4. 每一步回滚后该怎么验证
+\end{lstlisting}
+
+\begin{tipbox}
+回滚不等于“一键清空”。先保留证据，再缩小范围，再撤最小那一块，通常比一上来整批回退更稳。
+\end{tipbox}
+
+\begin{warnbox}
+别把 \texttt{git reset --hard} 这类命令当默认答案。只要你还没想清楚哪些内容要保留，就先别碰这类大锤。
+\end{warnbox}
+
 \subsection{改完以后，别只看它说了什么}
 
 真正重要的是验证：
@@ -1222,6 +1335,40 @@ codex review --base main
 
 生成脚手架，再按团队真实习惯补充内容。
 
+\subsection{除了 \texttt{AGENTS.md}，也值得把常用设置固化进 \texttt{config.toml}}
+
+\texttt{AGENTS.md} 管的是\textbf{仓库规则}；\texttt{\textasciitilde/.codex/config.toml} 更适合管你自己的\textbf{默认工作习惯}，比如常用模型、审批策略、沙箱模式，以及几种固定的 profile。
+
+如果你每次进会话都在重复同一种组合，通常就值得把它固化下来。一个很实用的分法是：
+\begin{itemize}
+  \item \textbf{safe}：只读浏览，适合看项目、看报错、做方案比较；
+  \item \textbf{dev}：工作区可写，适合本地日常开发；
+  \item \textbf{local}：走本地开源模型，适合做低风险浏览、试验或离线场景。
+\end{itemize}
+
+日常使用时，你真正需要记住的，常常只是这些入口：
+
+\begin{lstlisting}[style=cli]
+codex -p safe
+codex -p dev
+codex --oss --local-provider ollama -p local
+\end{lstlisting}
+
+如果只是偶尔临时换一次，也不一定要改配置文件，直接在命令行里覆盖就够了：
+
+\begin{lstlisting}[style=cli]
+codex -s read-only -a on-request
+codex -s workspace-write -a on-request --search
+\end{lstlisting}
+
+\begin{tipbox}
+最值得固化的，不是“所有参数”，而是你一周里会重复用很多次的那两三种工作模式。
+\end{tipbox}
+
+\begin{warnbox}
+配置文件字段名和可用项可能会随版本演进变化。真正落地时，还是以你本地帮助和当前官方配置文档为准。先想清楚“我要固化哪几种模式”，再去写具体字段，通常更不容易乱。
+\end{warnbox}
+
 \subsection{非交互执行：什么时候该用 \texttt{codex exec}}
 
 如果你想把某些工作做成脚本，或者在 CI 里跑，\texttt{codex exec} 很适合。比如：
@@ -1255,6 +1402,47 @@ codex exec "生成本次改动总结" -o summary.txt
 \begin{lstlisting}[style=cli]
 CODEX_API_KEY=<api-key> codex exec --json "梳理当前未处理的问题报告"
 \end{lstlisting}
+
+\subsection{把 \texttt{exec} 真正接进脚本：人看摘要，机器看结构}
+
+很多人把 \texttt{codex exec} 用到“命令能跑通”就停了，但脚本闭环通常还差一步。更稳的自动化思路，是把输出拆成三层：
+\begin{itemize}
+  \item 给\textbf{人}看的最后摘要；
+  \item 给\textbf{脚本}读的结构化事件流；
+  \item 给\textbf{流程}判断的退出状态和文件存在性检查。
+\end{itemize}
+
+一个很实用的最小样板可以长这样：
+
+\begin{lstlisting}[style=cli]
+set -euo pipefail
+export CODEX_API_KEY=your_api_key
+
+codex exec --json \
+  --output-schema review-schema.json \
+  -o codex-summary.txt \
+  "审查当前改动，并按约定结构输出风险摘要" \
+  > codex-events.jsonl
+\end{lstlisting}
+
+这几个产物各有分工：
+\begin{itemize}
+  \item \texttt{codex-summary.txt}：给人看，一眼知道结论；
+  \item \texttt{codex-events.jsonl}：给脚本留结构化事件流，后面要上传日志、做二次处理会方便很多；
+  \item \texttt{review-schema.json}：约束最终输出格式，让下游流程更稳定。
+\end{itemize}
+
+跑完后，脚本里至少再补一个很小的检查：
+
+\begin{lstlisting}[style=cli]
+test -s codex-summary.txt
+\end{lstlisting}
+
+这样做的意义很直接：就算这轮任务没有正常产出摘要，流水线也能尽早失败，而不是把“空结果”继续往后传。
+
+\begin{tipbox}
+如果后面真的要自动消费结果，尽量让机器读 \texttt{--json} 或 \texttt{--output-schema} 约束过的输出，不要去硬拆自然语言段落。
+\end{tipbox}
 
 \subsection{为什么 \texttt{exec} 默认要求 Git 仓库}
 
@@ -1686,6 +1874,51 @@ codex exec --json \
   \item 带外部副作用的执行动作；
   \item 出错后很难回滚的操作。
 \end{itemize}
+
+\subsection{技巧九：先用一个小例子理解 MCP 到底值在哪}
+
+\textbf{适合什么时候：}仓库外还有产品文档、内部知识库、工单系统、接口说明，或者别的外部工具数据，而你不想在提示词里手动复制来复制去。\\
+\textbf{核心思路：}让 Codex 同时看到“本地代码”和“外部上下文”，但第一次一定先从\textbf{一个只读小场景}跑通。
+
+先用命令确认你现在接了哪些 MCP 服务：
+
+\begin{lstlisting}[style=cli]
+codex mcp list
+codex mcp add docs --url https://example.com/mcp
+\end{lstlisting}
+
+然后拿一个特别具体的任务试水。比如当前仓库里有退款逻辑，外部文档里写着退款接口规范，你就可以这样问：
+
+\begin{lstlisting}[style=prompt]
+请结合当前仓库里的退款实现，以及 docs MCP 里的“退款接口”文档，
+分开告诉我：
+1. 本地代码现在实际怎么做
+2. 文档要求是什么
+3. 两边有没有不一致
+4. 如果我要先验证一处，最该从哪开始
+\end{lstlisting}
+
+这类场景里，MCP 的价值就会很清楚：
+\begin{itemize}
+  \item 只看本地代码，你知道“现在做成了什么样”；
+  \item 只看文档，你知道“理论上应该怎么做”；
+  \item 两边一起看，你才能更快找出偏差点和验证顺序。
+\end{itemize}
+
+第一次接 MCP，最值得先试的通常不是“让它直接调用很多外部系统”，而是下面这类只读任务：
+\begin{itemize}
+  \item 本地实现和外部文档是否一致；
+  \item 仓库里的字段命名和接口定义是否对得上；
+  \item 工单里描述的问题，能不能在代码里快速对上位置。
+\end{itemize}
+
+\begin{tipbox}
+第一次接 MCP，不要一上来把工单、监控、文档、数据库全接上。先接一个只读来源，先做“对照、解释、定位”，跑顺后再往外扩。
+\end{tipbox}
+
+\begin{warnbox}
+MCP 让上下文更丰富，不等于判断可以外包。特别是带写入能力的外部服务，依旧要沿用前面讲的审批、范围和回滚思路。
+\end{warnbox}
 
 \begin{sumbox}
 进阶使用的核心，不是会更多命令，而是会控四件事：控范围、控节奏、控比较、控交付。你一旦开始主动控制这四件事，Codex 的稳定性会明显上一个台阶。
