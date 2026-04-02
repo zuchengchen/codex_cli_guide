@@ -270,6 +270,7 @@ codex apply <TASK\_ID> & 应用某次任务 diff & 结果要落到工作树时 \
 /review & 会话内做代码审查 & 先查风险再看 diff \\
 /diff & 查看改动 & 改完先审一眼 \\
 /plan & 先出计划 & 大任务先计划再动手 \\
+/agent & 查看或切换 agent 线程 & 用了 subagent 后看并行线程和细节 \\
 /init & 生成 \texttt{AGENTS.md} 脚手架 & 想沉淀仓库规则时 \\
 \bottomrule
 \end{longtable}
@@ -437,6 +438,20 @@ git stash push -u -m "before-rollback"
 
 \texttt{AGENTS.md} 管仓库规则；\texttt{config.toml} 管你自己的默认习惯，比如常用模型、审批和沙箱组合。
 
+\textbf{最常用的位置：}
+\begin{itemize}
+  \item 用户级：\texttt{\textasciitilde/.codex/config.toml}
+  \item 项目级：\texttt{.codex/config.toml}
+\end{itemize}
+
+\textbf{最值得先认的几类信息：}
+\begin{itemize}
+  \item 顶层：\texttt{model}、\texttt{approval\_policy}、\texttt{sandbox\_mode}、\texttt{web\_search}
+  \item \texttt{[profiles.<name>]}：常用模式
+  \item \texttt{[features]}：功能开关
+  \item \texttt{[agents]}：subagent 并发和层级
+\end{itemize}
+
 \begin{lstlisting}[style=cli]
 codex -p safe
 codex -p dev
@@ -444,6 +459,15 @@ codex --oss --local-provider ollama -p local
 \end{lstlisting}
 
 先想清楚你最常用的 2 到 3 种模式，再去固化。
+
+\begin{lstlisting}[style=cli]
+codex features list | rg multi_agent
+codex features enable multi_agent
+\end{lstlisting}
+
+\begin{tipbox}
+当前版本里 \texttt{multi\_agent} 通常默认就是开的。多数时候不是“没开”，而是你没有明确要求它去 spawn subagent。
+\end{tipbox}
 
 \section{会话控制}
 
@@ -594,7 +618,7 @@ codex exec --json \
 
 到这里，入门主线其实已经够你正常开工了。下面这部分更像“用熟以后再加上的控场技巧”，适合按需查，不用第一次就全部照做。
 
-\subsection{这 8 招最值得记}
+\subsection{这 9 招最值得记}
 
 \begin{enumerate}
   \item 先比方案，再决定改不改。
@@ -605,6 +629,7 @@ codex exec --json \
   \item 把代码审查做成闭环，不是只跑一次。
   \item 固定交付模板，别让结果每次都飘。
   \item \texttt{codex exec} 优先做总结、分类、只读检查。
+  \item 任务能拆时，显式要求它用 subagent。
 \end{enumerate}
 
 \subsection{直接可抄的进阶提示词}
@@ -650,6 +675,41 @@ codex mcp add docs --url https://example.com/mcp
 \begin{tipbox}
 第一次接 MCP，先做对照和解释，不要一上来就给外部写权限。
 \end{tipbox}
+
+\subsection{subagent 怎么上手}
+
+\begin{lstlisting}[style=prompt]
+请 spawn 一个 subagent 负责一个检查点：
+1. 安全
+2. 真实 bug
+3. 测试遗漏
+等它们都完成后，再统一总结。
+\end{lstlisting}
+
+\begin{lstlisting}[style=cli]
+/agent
+\end{lstlisting}
+
+\texttt{/agent} 适合看当前有哪些 agent 线程，也方便切过去看细节。
+
+\subsection{怎么开多个 subagent}
+
+\begin{lstlisting}[style=cli]
+[agents]
+max_threads = 6
+max_depth = 1
+\end{lstlisting}
+
+\texttt{max\_threads} 控同时并行多少个；\texttt{max\_depth} 控能不能继续往下再 spawn。大多数时候先调线程数，不要急着加深层级。
+
+\subsection{自定义 subagent 放哪里}
+
+\begin{itemize}
+  \item 个人全局：\texttt{\textasciitilde/.codex/agents/}
+  \item 当前项目：\texttt{.codex/agents/}
+\end{itemize}
+
+最小自定义文件至少写：\texttt{name}、\texttt{description}、\texttt{developer\_instructions}。
 
 \section{练习题}
 
@@ -704,6 +764,7 @@ codex mcp add docs --url https://example.com/mcp
   \item 高风险任务先看计划、风险和回滚，再决定要不要放行。
   \item 有重复规则就写进 \texttt{AGENTS.md}。
   \item 查本地问题先看仓库，真要最新资料再开 \texttt{--search}。
+  \item 想让它并行干活，得明确要求 spawn subagent，并先控住 \texttt{max\_threads}。
 \end{enumerate}
 \end{tcolorbox}
 
